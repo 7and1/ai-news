@@ -50,7 +50,7 @@ We evaluated several leading AI workflow platforms before selecting Dify:
    Pros:
    - Community-oriented with easy sharing of workflows and agents
    - User-friendly with a low learning curve
-   Cons:
+     Cons:
    - No support for custom API keys
    - Lack of self-deployment options, raising potential data security concerns
 
@@ -58,7 +58,7 @@ We evaluated several leading AI workflow platforms before selecting Dify:
    Pros:
    - Open-source with self-deployment support
    - Established user base
-   Cons:
+     Cons:
    - Emerging platform with a developing ecosystem
    - Limited pre-configured node types, restricting flexibility
 
@@ -70,7 +70,7 @@ We evaluated several leading AI workflow platforms before selecting Dify:
    - Extensive pre-configured node types, boosting development efficiency
    - Open-source with self-deployment options, ensuring data security
    - Robust debugging and logging features
-   Cons:
+     Cons:
    - Evolving community ecosystem
    - Some advanced features limited to the enterprise version
 

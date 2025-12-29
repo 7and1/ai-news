@@ -46,20 +46,20 @@ import json
 def main(json_body):
     """
     处理 REST 请求返回的 JSON 字符串。
-    
+
     若输入为空字符串或JSON解析失败，则返回 {'success': 'false'}。
     若 JSON 字符串解析成功且 'success' 为 'true'，则返回包含指定键值的字典。
     否则返回 {'success': 'false'}。
 
     参数:
         json_body (str): 包含 JSON 数据的字符串。
-    
+
     返回:
         dict: 包含 'success' 键和指定的数据键值对的字典。
     """
-    
+
     result = {'success': 'false'}
-    
+
     if not json_body:
         return result
 
@@ -87,7 +87,7 @@ def main(json_body):
 
 ![文章分段处理](./flowImages/analyze_article_flow_segment.png)
 
-```python
+````python
 import re
 
 def main(markdown_text: str) -> dict:
@@ -107,14 +107,14 @@ def main(markdown_text: str) -> dict:
 
     # 初步按换行分隔，保留空行
     initial_paragraphs = markdown_text.split('\n')
-    
+
     paragraphs = []
     current_paragraph = ""
     in_code_block = False
-    
+
     for line in initial_paragraphs:
         stripped_line = line.strip()
-        
+
         # 处理代码块
         if stripped_line.startswith('```'):
             in_code_block = not in_code_block
@@ -123,13 +123,13 @@ def main(markdown_text: str) -> dict:
                 current_paragraph = ""
             paragraphs.append(line)
             continue
-        
+
         if in_code_block:
             paragraphs.append(line)
             continue
-        
+
         # 处理标题、引用、列表等
-        if (stripped_line.startswith(('#', '>', '-', '*', '+')) or 
+        if (stripped_line.startswith(('#', '>', '-', '*', '+')) or
             re.match(r'^\d+\.', stripped_line) or
             stripped_line.startswith('|') or  # 表格
             stripped_line == '---' or  # 水平线
@@ -147,10 +147,10 @@ def main(markdown_text: str) -> dict:
                 current_paragraph += " " + stripped_line
             else:
                 current_paragraph = stripped_line
-    
+
     if current_paragraph:
         paragraphs.append(current_paragraph)
-    
+
     # 合并段落使其长度不超过max_length
     merged_paragraphs = []
     current_paragraph = ""
@@ -186,7 +186,7 @@ def main(markdown_text: str) -> dict:
         "paragraphs": merged_paragraphs,
         "totalParagraphCount": len(merged_paragraphs)
     }
-```
+````
 
 ### 分段分析 LLM 节点
 
@@ -196,33 +196,41 @@ def main(markdown_text: str) -> dict:
 # 文章段落精要分析助手
 
 ## 输入格式
+
 您将收到一个 XML 格式的文章段落信息，包含标题、来源、网址和段落内容等元素。文章段落内容将包含在 CDATA 部分中。
 
 ## 目标
+
 分析给定的 XML 格式段落信息，提取核心内容、主要观点、潜在金句和相关标签，为后续全文汇总和检查步骤做准备。重点关注大模型、AIGC、AI 应用、AI 开发技术和框架（如提示词、RAG、WorkFlow、Agent、LangChain、Dify 等）。其次关注开发、产品、设计、影响、商业、创业等主题。使用{{#1719357159255.languageName#}}输出。
 
 ## 输出格式
+
 请使用{{#1719357159255.languageName#}}，按照以下 Markdown 格式输出该段落的分析结果：
 
 ```markdown
 ### 段落核心内容
+
 [简明扼要地概括本段落的核心内容，50-80 字]
 
 ### 主要观点（2-3 个）
+
 - [观点 1]
 - [观点 2]
 - [观点 3]（如果有）
 
 ### 潜在金句（2-3 句）
+
 > [金句 1]
 > [金句 2]
 > [金句 3]（如果有）
 
 ### 段落标签（2-4 个）
+
 [标签 1], [标签 2], [标签 3], [标签 4]
 ```
 
 ## 注意事项
+
 1. 仔细分析 XML 中的所有信息，包括标题、来源和网址，这些可能对理解内容背景很重要。
 
 2. 段落核心内容应简洁明了，突出关键信息，控制在 50-80 字内。
@@ -272,9 +280,11 @@ def main(markdown_text: str) -> dict:
 
 ```markdown
 ### 段落摘要
+
 在 AGI Playground 2024 大会上，创新工场联合创始人汪华分享了关于 AI 应用爆发的见解。他指出，目前大家对 AI 创业过于焦虑，实际上大模型的发展才刚开始一年多。汪华认为，未来四到五年内，将会有许多成功的 AI 创业者涌现。过去一年，全球大量投资集中在算力和基础设施上，应用侧的投资开始增加，尤其是 Q2 的投资显著增长。汪华强调，AI 应用爆发需要四个前提：模型性能、推理成本、模型的模态以及应用生态的演进。推理成本是实现 AI 普惠化的关键，未来推理成本预计将显著下降，这将推动更多应用场景的普及。
 
 ### 段落标签（2-5个）
+
 - 人工智能
 - 大语言模型
 - AI 应用
@@ -282,12 +292,14 @@ def main(markdown_text: str) -> dict:
 - 投资趋势
 
 ### 段落主要观点（2-5个）
+
 - [观点1的核心陈述]：大模型的发展时间尚短：[汪华认为大模型从开始到现在才一年多，应用发展需要时间和生态的构建。]
 - [观点2的核心陈述]：AI 应用爆发需要四个前提：[模型性能、推理成本、模型的模态和应用生态的演进。]
 - [观点3的核心陈述]：推理成本是实现 AI 普惠化的关键：[推理成本下降将推动更多应用场景的普及。]
 - [观点4的核心陈述]：投资开始从基础设施向应用侧迁移：[今年 Q2 的应用投资显著增长，未来将有更多 C 端应用爆发。]
 
 ### 潜在金句（1-3句）
+
 > 大家还是太焦虑了，大模型从开始到现在才一年多时间，整个的应用发展，本质上还是要随着模型的成熟和整个应用生态的构建逐渐发展。
 > AI 最重要的一点并不仅仅是 AGI 的实现，而是普惠化。
 > 在我的判断里，到今年年底左右，模型的推理成本可以比年初降 10 倍。
@@ -321,31 +333,36 @@ XML格式，包含文章元数据和分段分析结果。
 
 ```markdown
 ### 一句话总结
+
 [核心内容和主要结论]
 
 ### 文章标签（3-10个）
+
 [关键标签，按重要性排序]
 
 ### 摘要
+
 [全面概述，包括背景、思路、细节、数据、核心内容和启发性观点]
 
 ### 主要观点
+
 1. **[观点1]**
    - [解释]
 2. **[观点2]**
    - [解释]
 3. **[观点3]**
    - [解释]
-[最多5个]
+     [最多5个]
 
 ### 文章金句
+
 1. "[金句1]"
    - 重要性：[解释]
 2. "[金句2]"
    - 重要性：[解释]
 3. "[金句3]"
    - 重要性：[解释]
-[最多5个]
+     [最多5个]
 ```
 ````
 
@@ -374,9 +391,11 @@ XML格式，包含文章元数据和分段分析结果。
 
 ```markdown
 ### 一句话总结
+
 汪华在 AGI 大会上分享了对 AI 应用爆发的见解，指出大模型的发展仍需时间，未来四到五年内 AI 应用将迎来快速发展，特别是推理成本下降将推动普惠化和应用生态的构建。
 
 ### 文章标签（3-10个）
+
 - 人工智能
 - AI 应用
 - 大语言模型
@@ -388,9 +407,11 @@ XML格式，包含文章元数据和分段分析结果。
 - 中国 AI 发展
 
 ### 摘要
+
 在 AGI Playground 2024 大会上，创新工场联合创始人汪华就 AI 应用的未来发展进行了深入解读。他指出，大模型的发展才刚刚开始一年多，当前的焦虑情绪是不必要的。汪华认为，AI 应用爆发需要模型性能、推理成本、模型的模态和应用生态的演进四个前提，其中推理成本的下降是实现 AI 普惠化的关键。此外，他预测未来四到五年内，AI 应用将以比移动互联网更快的速度发展，特别是在 ToB 应用和生产力工具上。汪华还分享了中国 AI 模型性能的提升，如零一万物的 Yi-Large 已达到 GPT-4 级别，为国内 AI 应用爆发奠定了基础。他强调，创业者需既懂产品又懂技术，脚踏实地深挖用户场景。最后，汪华探讨了智能上限、多模态和 AI Agents 三大领域的未来发展趋势，并提出普惠奇点和智能奇点两个重要概念，前者预计在未来两年内实现，后者则可能在未来 4-5 年内显现。
 
 ### 主要观点
+
 1. **大模型的发展时间尚短**（重要性：4/5）
    - 汪华认为大模型的发展才刚刚开始一年多，应用的生态建设需要时间，因此目前的焦虑情绪是不必要的。
 2. **AI 应用爆发需要四个前提**（重要性：4/5）
@@ -403,6 +424,7 @@ XML格式，包含文章元数据和分段分析结果。
    - 尽管中国的应用层发展比美国慢一年，但增速很快，未来有望赶上，特别是在效率工具类应用方面。
 
 ### 文章金句
+
 1. "大家还是太焦虑了，大模型从开始到现在才一年多时间，整个的应用发展，本质上还是要随着模型的成熟和整个应用生态的构建逐渐发展。"
    - 重要性：这句话强调了大模型发展时间尚短，目前的焦虑情绪是不必要的。
 2. "AI 最重要的一点并不仅仅是 AGI 的实现，而是普惠化。"
@@ -413,7 +435,6 @@ XML格式，包含文章元数据和分段分析结果。
    - 重要性：说明了中国 AI 模型的性能提升，为国内 AI 应用爆发奠定了基础。
 5. "普惠奇点预计在未来两年内实现，使 AI 应用成本大幅降低，从而普及亿级别日活的应用。"
    - 重要性：提出了普惠奇点的概念，预示了 AI 应用成本的显著降低和普及。
-
 ```
 
 ### 识别领域、提取标签 LLM 节点
@@ -517,6 +538,7 @@ XML格式，包含文章元数据和分段分析结果。
 ## 示例输出
 
 **中文文章**:
+
 ```json
 {
   "domainProbabilities": {
@@ -531,6 +553,7 @@ XML格式，包含文章元数据和分段分析结果。
 ```
 
 **英文文章**:
+
 ```json
 {
   "domainProbabilities": {
@@ -540,10 +563,17 @@ XML格式，包含文章元数据和分段分析结果。
     "商业科技": 5
   },
   "mainDomain": "软件编程",
-  "tags": ["Python", "Web Development", "Django", "REST API", "Database", "Backend", "Performance Optimization"]
+  "tags": [
+    "Python",
+    "Web Development",
+    "Django",
+    "REST API",
+    "Database",
+    "Backend",
+    "Performance Optimization"
+  ]
 }
 ```
-
 ````
 
 #### 识别领域、提取标签输入
@@ -603,10 +633,13 @@ XML格式，包含文章元数据和分段分析结果。
 # 技术文章评分指南
 
 ## 背景
+
 你是一位经验丰富的技术写作专家，负责评估涵盖编程、人工智能、产品管理和商业科技等领域的技术文章。你的任务是根据以下标准对文章进行客观、全面的评分。
 
 ## 输入说明
+
 你将收到以下输入信息：
+
 1. 文章元数据：包括标题、来源和URL
 2. 文章全文内容
 3. 领域分析结果：包含文章的领域分类和相关标签
@@ -618,43 +651,43 @@ XML格式，包含文章元数据和分段分析结果。
    - 基础（1-10分）：提供基本信息，缺乏深入思考。
    - 中等（11-20分）：包含一定深度的分析和见解，但可能不够全面。
    - 高级（21-30分）：提供深入的思考和洞察，结论和观点能引发进一步的学习和探讨。
-   主要考虑因素：
-   • 分析深度和全面性
-   • 观点的原创性和启发性
-   • 技术或概念解释的深度和适用性
+     主要考虑因素：
+     • 分析深度和全面性
+     • 观点的原创性和启发性
+     • 技术或概念解释的深度和适用性
 
 2. 相关性（0-30分）
    - 低（1-10分）：与核心技术领域和目标读者的关联度低。
    - 中（11-20分）：有一定相关性，对部分目标读者有价值。
    - 高（21-30分）：高度相关，直接针对核心技术领域和目标读者的需求。
-   主要考虑因素：
-   • 文章主题与当前技术趋势的关联度，按以下优先级考虑：
+     主要考虑因素：
+     • 文章主题与当前技术趋势的关联度，按以下优先级考虑：
      - 最高度相关：AI相关内容，包括但不限于大模型、AIGC、AI应用、AI开发技术和框架等
      - 高度相关：编程、软件开发、产品管理、商业科技、创业、数字营销（特别是与技术结合的部分）
      - 中等相关：其他技术领域或与上述领域间接相关的内容
      - 低相关：如纯营销活动、汽车、航天、电子产品等与核心技术领域关系不大的主题
-   • 内容对目标读者（如开发者、产品经理、技术创业者等）的直接价值
-   • 文章讨论的技术或方法在行业中的应用程度和潜在影响
+       • 内容对目标读者（如开发者、产品经理、技术创业者等）的直接价值
+       • 文章讨论的技术或方法在行业中的应用程度和潜在影响
 
 3. 写作质量（0-20分）
    - 基础（1-7分）：结构混乱，存在明显错误，难以理解。
    - 良好（8-14分）：结构清晰，表达准确，易于阅读。
    - 优秀（15-20分）：结构优秀，表达专业，逻辑流畅，引人入胜。
-   主要考虑因素：
-   • 结构清晰度和逻辑性
-   • 技术概念和术语的准确性
-   • 表达的专业性和可读性
-   • 示例、类比或可视化元素的有效使用
+     主要考虑因素：
+     • 结构清晰度和逻辑性
+     • 技术概念和术语的准确性
+     • 表达的专业性和可读性
+     • 示例、类比或可视化元素的有效使用
 
 4. 实用性和创新性（0-20分）
    - 低（1-7分）：实用性低，缺乏创新，难以应用于实际工作。
    - 中（8-14分）：提供一些实用建议或新颖观点，有一定应用价值。
    - 高（15-20分）：高度实用或创新，提供可直接应用的解决方案或独特见解。
-   主要考虑因素：
-   • 内容的实际应用价值
-   • 解决方案或建议的具体性和可操作性
-   • 观点或方法的创新程度
-   • 对行业的潜在影响
+     主要考虑因素：
+     • 内容的实际应用价值
+     • 解决方案或建议的具体性和可操作性
+     • 观点或方法的创新程度
+     • 对行业的潜在影响
 
 5. 综合评分调整（-10到+10分）
    加分项（每项最多+3分）：
@@ -670,6 +703,7 @@ XML格式，包含文章元数据和分段分析结果。
    - 明显的技术错误或误导性信息
 
 ## 评分步骤
+
 1. 仔细阅读提供的文章元数据、内容和分析结果。
 2. 参考之前的分段分析和汇总分析结果，确保评分的一致性。
 3. 根据上述标准对各维度进行评分。
@@ -684,6 +718,7 @@ XML格式，包含文章元数据和分段分析结果。
 # 技术文章评估报告
 
 ## 评分详情
+
 1. **内容深度**：[分数]/30
    - **评分理由**：[简洁理由]
 
@@ -700,9 +735,11 @@ XML格式，包含文章元数据和分段分析结果。
    - **评分理由**：[简洁说明加分或减分的具体原因]
 
 ## 最终评分
+
 **总分**：[最终总分]/100
 
 ## 总体评价
+
 [50-100字的总结，突出文章的主要优势和可能的改进空间]
 ```
 
@@ -745,6 +782,7 @@ XML格式，包含文章元数据和分段分析结果。
 # 技术文章评估报告
 
 ## 评分详情
+
 1. **内容深度**：26/30
    - **评分理由**：文章提供了对AI应用发展的深入分析和见解，涵盖了模型性能、推理成本、模态和应用生态等多个重要方面。汪华的观点具有原创性和启发性，能够引发读者对未来AI发展的深入思考。
 
@@ -752,7 +790,7 @@ XML格式，包含文章元数据和分段分析结果。
    - **评分理由**：文章高度相关于当前的人工智能领域，特别是大模型、AI应用和AI开发技术等热门话题。内容直接针对开发者、产品经理和技术创业者的需求，具有很高的实用价值。
 
 3. **写作质量**：18/20
-   - **评分理由**：文章结构清晰，逻辑流畅，表达专业且易于理解。技术概念和术语使用准确，并有效地通过实例和类比来说明观点。 
+   - **评分理由**：文章结构清晰，逻辑流畅，表达专业且易于理解。技术概念和术语使用准确，并有效地通过实例和类比来说明观点。
 
 4. **实用性和创新性**：17/20
    - **评分理由**：文章提供了实际的应用开发建议和对未来趋势的预测，具有较高的应用价值和创新性。特别是对推理成本下降和普惠化的讨论，具有很强的现实指导意义。
@@ -761,9 +799,11 @@ XML格式，包含文章元数据和分段分析结果。
    - **评分理由**：文章对当前热点问题的深入回应和对未来趋势的准确预测非常有价值。同时，提供了高质量的实例和数据支持，引用资料丰富，进一步增强了文章的可信度和权威性。
 
 ## 最终评分
+
 **总分**：96/100
 
 ## 总体评价
+
 这篇文章对AI应用发展的分析深入全面，既有宏观视角的趋势预测，又有微观层面的实用建议。写作质量高，逻辑清晰，读者易于理解。特别是在推理成本和普惠化方面的讨论，具有很高的现实指导价值。唯一的改进空间在于可以增加更多具体的技术细节和案例分析，进一步增强文章的实用性。
 ```
 
@@ -775,10 +815,13 @@ XML格式，包含文章元数据和分段分析结果。
 # 技术文章初步分析结果审核专家任务指南
 
 ## 背景和目标
+
 作为资深技术文章分析审核专家，您的任务是审核初步分析结果，确保分析准确反映原文内容，并提供改进建议以提高分析质量。您的审核应确保最终输出具有高度的洞察力和实用性。
 
 ## 输入格式
+
 XML格式，包含：
+
 1. <metadata>：文章的标题、来源和URL
 2. <content>：原始文章的完整Markdown内容
 3. <previousAnalysisResult>：初步分析结果，包括一句话总结、摘要、主要观点和文章金句
@@ -828,36 +871,44 @@ XML格式，包含：
 
 ```markdown
 ### 一句话总结审核
+
 - 评估结果：[简要描述一句话总结的质量，包括准确性和简洁性]
 - 改进建议：[1-3条具体建议]
 
 ### 摘要审核
+
 - 评估结果：[简要描述摘要的质量，包括全面性、关键元素覆盖、结构逻辑等]
 - 改进建议：[1-3条具体建议]
 
 ### 主要观点和文章金句审核
+
 - 评估结果：[简要描述主要观点和文章金句的质量，包括准确性、全面性、启发性等]
 - 改进建议：[1-3条具体建议]
 
 ### 领域识别和标签审核
+
 - 评估结果：[简要描述领域识别和标签的质量，包括准确性、相关性、全面性等]
 - 改进建议：[1-3条具体建议]
 
 ### 评分审核
+
 - 评估结果：[简要描述评分的质量，包括维度全面性、合理性、一致性等]
 - 调整建议：[1-3条具体建议]
 
 ### 整体一致性
+
 - 评估结果：[简要描述各部分分析结果之间的一致性]
 - 改进建议：[1-3条具体建议]
 
 ### 总体评估
+
 - 分析结果主要优点：[1-3点]
 - 分析结果主要改进点：[1-3点]
 - 关键改进建议：[1-3点最重要的建议]
 ```
 
 ## 注意事项
+
 - 聚焦于评估初步分析结果的质量，而非原文本身
 - 仔细阅读原始文章内容和所有初步分析结果
 - 保持客观、专业的语气
@@ -911,12 +962,14 @@ XML格式，包含：
 
 ```markdown
 ### 一句话总结审核
+
 - 评估结果：一句话总结准确捕捉了文章的核心内容，简洁明了，能够传达主要观点。
 - 改进建议：
   1. 可以更具体地指出“大模型的发展仍需时间”的具体原因或挑战。
   2. 提及“推理成本下降”对普惠化和应用生态构建的具体影响。
 
 ### 摘要审核
+
 - 评估结果：摘要全面概括了文章内容，涵盖了背景、主题、问题和挑战、解决思路、实施措施、方案细节和最终结果。结构清晰，逻辑合理，突出关键结论和创新点。
 - 改进建议：
   1. 可以进一步简化部分冗长的句子，使摘要更加简洁明了。
@@ -924,6 +977,7 @@ XML格式，包含：
   3. 提及“普惠奇点和智能奇点”的具体实现路径和预期影响。
 
 ### 主要观点和文章金句审核
+
 - 评估结果：主要观点和文章金句准确反映了文章核心论述，涵盖了文章最重要的内容和思考。排序合理，突出了它们在文章中的重要性。
 - 改进建议：
   1. 对于“高性能模型是应用开发的底线”，可以增加对具体应用场景的解释。
@@ -931,6 +985,7 @@ XML格式，包含：
   3. 增加对“智能上限和多模态”的具体案例或进一步解释。
 
 ### 领域识别和标签审核
+
 - 评估结果：领域识别准确，标签合理覆盖了文章的主题、技术/领域、应用/产品、公司/平台和趋势。标签全面且准确，特别是AI相关标签的准确性较高。
 - 改进建议：
   1. 可以增加更具体的标签，如“AI 普惠化”、“AI 生态系统”。
@@ -938,6 +993,7 @@ XML格式，包含：
   3. 对于跨领域内容，可以增加更细分的标签，如“AI 投资趋势”。
 
 ### 评分审核
+
 - 评估结果：评分维度全面，评分合理且依据充分。各维度评分反映了文章的整体质量，并与其他分析部分一致。
 - 调整建议：
   1. 在“内容深度”方面，可以考虑增加对具体技术细节的评分权重。
@@ -945,6 +1001,7 @@ XML格式，包含：
   3. 考虑增加“可读性”作为独立评分维度，进一步细化评分标准。
 
 ### 整体一致性
+
 - 评估结果：各部分分析结果之间一致性较高，没有明显的矛盾或不协调之处。整体分析全面、准确地反映了原文内容。
 - 改进建议：
   1. 确保每个部分的分析结果都能相互补充和验证，避免重复信息。
@@ -952,6 +1009,7 @@ XML格式，包含：
   3. 确保领域识别和标签与文章内容的每个部分紧密对应。
 
 ### 总体评估
+
 - 分析结果主要优点：
   1. 一句话总结和摘要准确传达了文章的核心内容。
   2. 主要观点和文章金句涵盖了文章的关键思考和结论。
@@ -976,7 +1034,9 @@ XML格式，包含：
 作为技术文章评论专家和提示词专家，您的任务是对bestblogs.dev网站技术文章的初步分析结果进行最终优化。这是整个分析流程的最后一个处理节点，其输出质量直接影响整个系统的效果。
 
 ## 输入格式
+
 输入将以XML格式提供，包含以下部分：
+
 - `<metadata>`: 文章的元数据，包括标题、来源和URL
 - `<content>`: 文章的完整内容
 - `<previousAnalysisResult>`: 之前的分析结果，包含一句话总结、摘要、主要观点和文章金句
@@ -985,6 +1045,7 @@ XML格式，包含：
 - `<reflectionFeedback>`: 检查反思的反馈
 
 ## 分析指南和注意事项
+
 1. 仔细审阅所有输入内容，识别并优先处理需要改进的关键方面。
 
 2. 保留所有关键信息，不要过度简化或随意修改原先输出的内容。优化目标是在保持信息完整性的同时提高可读性。
@@ -1002,37 +1063,40 @@ XML格式，包含：
 8. 只在有充分理由时更新字段。所有更新必须提供详细的updateReason说明。
 
 ## 输出格式和字段说明
+
 请使用JavaScript以JSON格式输出优化后的分析结果，包含以下字段：
 
 ```json
 {
   "oneSentenceSummary": "简洁明了的一句话总结，准确概括文章核心内容",
   "oneSentenceSummaryUpdateReason": "更新原因（仅在有更新时输出）",
-  
+
   "summary": "3-10句话的总结，涵盖文章的核心要素",
   "summaryUpdateReason": "更新原因（仅在有更新时输出）",
-  
+
   "domain": "领域分类（软件编程、人工智能、产品设计、商业科技之一）",
   "domainUpdateReason": "更新原因（仅在有更新时输出）",
-  
-  "tags": ["3-10个标签，按主题 > 技术/领域 > 应用/产品 > 公司/平台/名人 > 趋势排序"],
+
+  "tags": [
+    "3-10个标签，按主题 > 技术/领域 > 应用/产品 > 公司/平台/名人 > 趋势排序"
+  ],
   "tagsUpdateReason": "更新原因（仅在有更新时输出）",
-  
+
   "mainPoints": [
     {
       "point": "主要观点1",
       "explanation": "观点1的解释，强调实际应用价值或潜在影响"
-    },
+    }
     // 3-5个主要观点
   ],
   "mainPointsUpdateReason": "更新原因（仅在有更新时输出）",
-  
+
   "keyQuotes": ["3-5个代表性文章金句，体现文章独特见解、创新思想或实用价值"],
   "keyQuotesUpdateReason": "更新原因（仅在有更新时输出）",
-  
+
   "score": 80, // 0-100的整数
   "scoreUpdateReason": "更新原因（仅在有更新时输出）",
-  
+
   "improvements": "总体说明本次优化的主要改进点，包括修改内容和原因"
 }
 ```
@@ -1083,58 +1147,58 @@ XML格式，包含：
 
 ```json
 {
-    "oneSentenceSummary": "汪华在 AGI 大会上解读了 AI 应用的未来发展，强调推理成本下降和应用生态构建对于 AI 普惠化的关键作用，并预测未来四到五年内 AI 应用将快速发展。",
-    "oneSentenceSummaryUpdateReason": "更具体地指出了“大模型的发展仍需时间”的具体原因或挑战，并提及“推理成本下降”的具体影响。",
-    "summary": "在 AGI Playground 2024 大会上，创新工场联合创始人汪华就 AI 应用的未来发展进行了深入解读。他指出，大模型的发展才刚刚一年多，当前的焦虑情绪是不必要的。汪华认为，AI 应用爆发需要模型性能、推理成本、模型的模态和应用生态的演进四个前提，其中推理成本的下降是实现 AI 普惠化的关键。此外，他预测未来四到五年内，AI 应用将以比移动互联网更快的速度发展，特别是在 ToB 应用和生产力工具上。汪华还分享了中国 AI 模型性能的提升，如零一万物的 Yi-Large 已达到 GPT-4 级别，为国内 AI 应用爆发奠定了基础。他强调，创业者需既懂产品又懂技术，脚踏实地深挖用户场景。最后，汪华探讨了智能上限、多模态和 AI Agents 三大领域的未来发展趋势，并提出普惠奇点和智能奇点两个重要概念，普惠奇点预计在未来两年内实现，智能奇点则可能在未来 4-5 年内显现。",
-    "summaryUpdateReason": "简化了部分冗长句子，使摘要更加简洁明了，并增加了对智能上限、多模态和 AI Agents 三大领域的解释，提及普惠奇点和智能奇点的具体实现路径和预期影响。",
-    "domain": "人工智能",
-    "tags": [
-        "人工智能",
-        "AI 应用",
-        "大语言模型",
-        "推理成本",
-        "创新工场",
-        "投资趋势",
-        "多模态",
-        "AI Agents",
-        "中国 AI 发展",
-        "AI 普惠化",
-        "AI 生态系统"
-    ],
-    "tagsUpdateReason": "增加了更具体的标签，如“AI 普惠化”和“AI 生态系统”，并确保标签的独立性，避免重复和过于相似的标签。",
-    "mainPoints": [
-        {
-            "point": "大模型的发展时间尚短",
-            "explanation": "汪华认为大模型的发展才刚刚开始一年多，应用的生态建设需要时间，因此目前的焦虑情绪是不必要的。"
-        },
-        {
-            "point": "AI 应用爆发需要四个前提",
-            "explanation": "模型性能、推理成本、模型的模态和应用生态的演进是 AI 应用爆发的四个必要条件。"
-        },
-        {
-            "point": "推理成本是实现 AI 普惠化的关键",
-            "explanation": "未来推理成本预计将显著下降，这将推动更多应用场景的普及，使 AI 更加普惠。"
-        },
-        {
-            "point": "高性能模型是应用开发的底线",
-            "explanation": "当前高性能模型如 GPT-4 是许多应用开发的必要条件，GPT-3.5 级别的模型已无法满足需求。"
-        },
-        {
-            "point": "中国 AI 应用发展潜力巨大",
-            "explanation": "尽管中国的应用层发展比美国慢一年，但增速很快，未来有望赶上，特别是在效率工具类应用方面。"
-        }
-    ],
-    "mainPointsUpdateReason": "增加了对具体应用场景的解释，如“高性能模型是应用开发的底线”，并增加更多关于“中国 AI 应用发展潜力”的具体数据或实例。",
-    "keyQuotes": [
-        "大家还是太焦虑了，大模型从开始到现在才一年多时间，整个的应用发展，本质上还是要随着模型的成熟和整个应用生态的构建逐渐发展。",
-        "AI 最重要的一点并不仅仅是 AGI 的实现，而是普惠化。",
-        "我觉得大模型时代的话，整个 AI 的节奏会比移动互联网更快，大概 3-4 年把这个顺序走一遍。",
-        "中国的模型性能已经足够强了，比如零一万物的 Yi-Large 已经达到了 GPT-4 的级别。",
-        "普惠奇点预计在未来两年内实现，使 AI 应用成本大幅降低，从而普及亿级别日活的应用。"
-    ],
-    "keyQuotesUpdateReason": "增加了对“智能上限和多模态”的具体案例或进一步解释。",
-    "score": 96,
-    "improvements": "本次优化主要改进了以下方面：增强了一句话总结和摘要的具体性，简化了冗长句子，并增加了对智能上限、多模态和 AI Agents 三大领域的详细解释和案例分析。标签部分增加了更具体的标签，确保了标签的独立性和细分。主要观点和文章金句部分增加了对具体应用场景和实例的解释，增强了内容的实用性。"
+  "oneSentenceSummary": "汪华在 AGI 大会上解读了 AI 应用的未来发展，强调推理成本下降和应用生态构建对于 AI 普惠化的关键作用，并预测未来四到五年内 AI 应用将快速发展。",
+  "oneSentenceSummaryUpdateReason": "更具体地指出了“大模型的发展仍需时间”的具体原因或挑战，并提及“推理成本下降”的具体影响。",
+  "summary": "在 AGI Playground 2024 大会上，创新工场联合创始人汪华就 AI 应用的未来发展进行了深入解读。他指出，大模型的发展才刚刚一年多，当前的焦虑情绪是不必要的。汪华认为，AI 应用爆发需要模型性能、推理成本、模型的模态和应用生态的演进四个前提，其中推理成本的下降是实现 AI 普惠化的关键。此外，他预测未来四到五年内，AI 应用将以比移动互联网更快的速度发展，特别是在 ToB 应用和生产力工具上。汪华还分享了中国 AI 模型性能的提升，如零一万物的 Yi-Large 已达到 GPT-4 级别，为国内 AI 应用爆发奠定了基础。他强调，创业者需既懂产品又懂技术，脚踏实地深挖用户场景。最后，汪华探讨了智能上限、多模态和 AI Agents 三大领域的未来发展趋势，并提出普惠奇点和智能奇点两个重要概念，普惠奇点预计在未来两年内实现，智能奇点则可能在未来 4-5 年内显现。",
+  "summaryUpdateReason": "简化了部分冗长句子，使摘要更加简洁明了，并增加了对智能上限、多模态和 AI Agents 三大领域的解释，提及普惠奇点和智能奇点的具体实现路径和预期影响。",
+  "domain": "人工智能",
+  "tags": [
+    "人工智能",
+    "AI 应用",
+    "大语言模型",
+    "推理成本",
+    "创新工场",
+    "投资趋势",
+    "多模态",
+    "AI Agents",
+    "中国 AI 发展",
+    "AI 普惠化",
+    "AI 生态系统"
+  ],
+  "tagsUpdateReason": "增加了更具体的标签，如“AI 普惠化”和“AI 生态系统”，并确保标签的独立性，避免重复和过于相似的标签。",
+  "mainPoints": [
+    {
+      "point": "大模型的发展时间尚短",
+      "explanation": "汪华认为大模型的发展才刚刚开始一年多，应用的生态建设需要时间，因此目前的焦虑情绪是不必要的。"
+    },
+    {
+      "point": "AI 应用爆发需要四个前提",
+      "explanation": "模型性能、推理成本、模型的模态和应用生态的演进是 AI 应用爆发的四个必要条件。"
+    },
+    {
+      "point": "推理成本是实现 AI 普惠化的关键",
+      "explanation": "未来推理成本预计将显著下降，这将推动更多应用场景的普及，使 AI 更加普惠。"
+    },
+    {
+      "point": "高性能模型是应用开发的底线",
+      "explanation": "当前高性能模型如 GPT-4 是许多应用开发的必要条件，GPT-3.5 级别的模型已无法满足需求。"
+    },
+    {
+      "point": "中国 AI 应用发展潜力巨大",
+      "explanation": "尽管中国的应用层发展比美国慢一年，但增速很快，未来有望赶上，特别是在效率工具类应用方面。"
+    }
+  ],
+  "mainPointsUpdateReason": "增加了对具体应用场景的解释，如“高性能模型是应用开发的底线”，并增加更多关于“中国 AI 应用发展潜力”的具体数据或实例。",
+  "keyQuotes": [
+    "大家还是太焦虑了，大模型从开始到现在才一年多时间，整个的应用发展，本质上还是要随着模型的成熟和整个应用生态的构建逐渐发展。",
+    "AI 最重要的一点并不仅仅是 AGI 的实现，而是普惠化。",
+    "我觉得大模型时代的话，整个 AI 的节奏会比移动互联网更快，大概 3-4 年把这个顺序走一遍。",
+    "中国的模型性能已经足够强了，比如零一万物的 Yi-Large 已经达到了 GPT-4 的级别。",
+    "普惠奇点预计在未来两年内实现，使 AI 应用成本大幅降低，从而普及亿级别日活的应用。"
+  ],
+  "keyQuotesUpdateReason": "增加了对“智能上限和多模态”的具体案例或进一步解释。",
+  "score": 96,
+  "improvements": "本次优化主要改进了以下方面：增强了一句话总结和摘要的具体性，简化了冗长句子，并增加了对智能上限、多模态和 AI Agents 三大领域的详细解释和案例分析。标签部分增加了更具体的标签，确保了标签的独立性和细分。主要观点和文章金句部分增加了对具体应用场景和实例的解释，增强了内容的实用性。"
 }
 ```
 
@@ -1156,7 +1220,17 @@ XML格式，包含：
   "summaryUpdateReason": "在原先摘要基础上，增加了对“AI 化”概念的解释和重要性的强调，并补充了韦青关于人工智能与企业和社会关系的观点，以及他对企业家和开发者的建议，使摘要更加全面、深入、有吸引力。",
   "domain": "人工智能",
   "aiSubcategory": "AI开发",
-  "tags": ["大模型", "AIGC", "思想转型", "数据质量", "AI化", "数字化转型", "企业发展", "技术领导力", "流程重构"],
+  "tags": [
+    "大模型",
+    "AIGC",
+    "思想转型",
+    "数据质量",
+    "AI化",
+    "数字化转型",
+    "企业发展",
+    "技术领导力",
+    "流程重构"
+  ],
   "tagsUpdateReason": "在原先标签基础上，增加了“技术领导力”和“流程重构”，以涵盖文章在企业战略和技术管理方面的应用，使标签更全面、准确。",
   "mainPoints": [
     {
@@ -1205,17 +1279,29 @@ XML格式，包含：
 ```json
 {
   "oneSentenceSummary": "This article explains the transition from First Input Delay (FID) to Interaction to Next Paint (INP) as a Core Web Vital, emphasizing its broader scope in measuring and improving user interaction responsiveness.",
-  
+
   "summary": "This Vercel News article announces the replacement of First Input Delay (FID) with Interaction to Next Paint (INP) as a Core Web Vital by March 2024. INP provides a more comprehensive view of user interaction responsiveness by considering not only the initial delay but also the processing and rendering time for each interaction. The article details the limitations of FID, focusing only on the first input and neglecting subsequent interactions. It then explains how INP addresses these limitations by measuring the input delay, processing delay, and presentational delay for all interactions throughout a page's lifespan, ultimately reporting the worst-case INP score. The article further provides practical optimization strategies for minimizing INP, including code profiling, debouncing and throttling event handlers, efficient code splitting, and leveraging React 18's concurrent features for improved performance. Lastly, it introduces tools like Vercel Speed Insights, PageSpeed Insights, and Lighthouse for effectively measuring INP.",
   "summaryUpdateReason": "Added specifics about how React 18 can improve INP scores and provided more context on the overall content of the article.",
 
   "domain": "软件工程",
-  
+
   "aiSubcategory": "AI资讯",
-  
-  "tags": ["Web Performance", "Core Web Vitals", "User Interaction", "Browser Metrics", "Vercel", "JavaScript Optimization", "Real User Monitoring", "React 18", "Event Handling", "Layout Optimization", "User Experience"],
+
+  "tags": [
+    "Web Performance",
+    "Core Web Vitals",
+    "User Interaction",
+    "Browser Metrics",
+    "Vercel",
+    "JavaScript Optimization",
+    "Real User Monitoring",
+    "React 18",
+    "Event Handling",
+    "Layout Optimization",
+    "User Experience"
+  ],
   "tagsUpdateReason": "Added 'User Experience' tag as INP is directly related to enhancing user experience.",
-  
+
   "mainPoints": [
     {
       "point": "Transition from FID to INP",
@@ -1239,13 +1325,13 @@ XML格式，包含：
     }
   ],
   "mainPointsUpdateReason": "Added a new main point about the impact of INP on User Experience to emphasize its importance.",
-  
+
   "keyQuotes": [
     "As of March 2024, Interaction to Next Paint (INP) will replace the First Input Delay (FID) as a new Core Web Vital.",
     "With INP, we no longer have to focus solely on optimizing event queuing times and main thread availability, as was the case with FID.",
     "Optimizing for INP will not only result in more responsive and seamless interactions but also greatly enhance the overall user experience."
   ],
-  
+
   "score": 87,
   "scoreUpdateReason": "Increased the score by 1 point in the 'Practicality and Innovation' category due to the article's introduction of the new INP metric and its practical optimization strategies.",
   "improvements": "The optimization process involved several key improvements:\n- Added specifics about how React 18 can improve INP scores in the summary.\n- Included a new main point highlighting the impact of INP on User Experience.\n- Added the 'User Experience' tag to reflect the article's focus.\n- Increased the score by 1 point in the 'Practicality and Innovation' category due to the article's introduction of the new INP metric."

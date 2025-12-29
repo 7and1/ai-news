@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 BestBlogs.dev is a content aggregation platform that curates high-quality articles from the fields of software development, artificial intelligence, product management, design, business technology, and personal growth. The platform uses AI-powered analysis to evaluate, summarize, and enhance content from 380+ RSS sources.
 
 ### Core Features
+
 - Intelligent article analysis and scoring using large language models
 - Multi-language support (Chinese/English) with automatic translation
 - RSS aggregation from diverse tech sources (articles, podcasts, Twitter feeds)
@@ -31,6 +32,7 @@ This repository contains documentation and configuration files for the BestBlogs
 ## Key Workflows
 
 ### Article Analysis Pipeline
+
 The platform uses Dify Workflows for intelligent content processing:
 
 1. **Article Crawling**: RSS-based content collection with full-text extraction
@@ -45,6 +47,7 @@ The platform uses Dify Workflows for intelligent content processing:
 4. **Multi-language Translation**: Automatic content translation with optimization
 
 ### Content Categories
+
 - `Artificial_Intelligence`: AI models, development, products, news
 - `Business_Tech`: Business technology and market analysis
 - `Programming_Technology`: Software development and engineering
@@ -53,8 +56,9 @@ The platform uses Dify Workflows for intelligent content processing:
 ## API Integration
 
 The platform provides comprehensive OpenAPI endpoints for:
+
 - Source management (`/openapi/v1/source/*`)
-- Newsletter management (`/openapi/v1/newsletter/*`) 
+- Newsletter management (`/openapi/v1/newsletter/*`)
 - Resource content (`/openapi/v1/resource/*`)
 
 All endpoints require API key authentication via `X-API-KEY` header.
@@ -69,6 +73,7 @@ All endpoints require API key authentication via `X-API-KEY` header.
 ## Development Notes
 
 Since this is primarily a documentation and configuration repository:
+
 - No build commands are required
 - Content is managed through markdown files and OPML configurations
 - Changes to RSS sources should update the corresponding OPML files
@@ -78,6 +83,7 @@ Since this is primarily a documentation and configuration repository:
 ## Content Management
 
 When updating content:
+
 - Follow the established documentation structure
 - Maintain consistency between Chinese and English versions
 - Update relevant OPML files when adding/removing RSS sources

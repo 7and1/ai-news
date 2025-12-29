@@ -1,0 +1,529 @@
+# BestBlogs.dev CI/CD Pipeline
+# Complete workflow for linting, testing, building, and deploying
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop, staging]
+  pull_request:
+    branches: [main, develop, staging]
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: "Deployment environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+# Minimize permissions for security
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+  deployments: write
+  actions: read
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # =============================================================================
+  # QUALITY GATES - Run on all PRs and pushes
+  # =============================================================================
+  lint:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./web
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./web
+        run: npm run lint -- --max-warnings 0
+
+      - name: Check TypeScript types
+        working-directory: ./web
+        run: npx tsc --noEmit --pretty
+
+      - name: Check code formatting
+        working-directory: ./web
+        run: npx prettier --check "src/**/*.{ts,tsx,json,css}" "**/*.md"
+
+      - name: Verify import order
+        working-directory: ./web
+        run: npx eslint --config eslint.config.mjs --quiet "src/**/*.{ts,tsx}"
+
+  # =============================================================================
+  # TESTS - Run on all PRs and pushes
+  # =============================================================================
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./web
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: ./web
+        run: npm run test -- --coverage --reporter=verbose
+
+      - name: Check coverage thresholds
+        working-directory: ./web
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+          if (( $(echo "$COVERAGE < 70" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below 70% threshold"
+            exit 1
+          fi
+          echo "Coverage $COVERAGE% meets threshold"
+        continue-on-error: true
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./web/coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # =============================================================================
+  # BUILD - Build the application
+  # =============================================================================
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./web
+        run: npm ci
+
+      - name: Generate version
+        id: version
+        working-directory: ./web
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          SHA_SHORT="${GITHUB_SHA::7}"
+          echo "version=${VERSION}-${SHA_SHORT}" >> $GITHUB_OUTPUT
+          echo "Build version: ${VERSION}-${SHA_SHORT}"
+
+      - name: Build Next.js
+        working-directory: ./web
+        env:
+          NODE_ENV: production
+        run: npm run build:next
+
+      - name: Build OpenNext Cloudflare
+        working-directory: ./web
+        env:
+          NODE_ENV: production
+        run: npm run build:worker
+
+      - name: Verify build output
+        run: |
+          if [ ! -f "web/.open-next/worker.js" ]; then
+            echo "Build failed: worker.js not found"
+            exit 1
+          fi
+          echo "Build output verified successfully"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: |
+            web/.open-next/
+            web/.next/
+          retention-days: 7
+
+  # =============================================================================
+  # DATABASE MIGRATIONS - Apply schema changes
+  # =============================================================================
+  migrate:
+    name: Database Migrations
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: web/
+
+      - name: Run D1 migrations (Production)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Create migration tracking table if not exists
+          wrangler d1 execute ai_news_db --command="
+            CREATE TABLE IF NOT EXISTS _migrations (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL UNIQUE,
+              applied_at INTEGER NOT NULL
+            );
+          "
+
+          # Run migrations in order
+          for migration in migrations/*.sql; do
+            if [ -f "$migration" ]; then
+              migration_name=$(basename "$migration")
+              echo "Running migration: $migration_name"
+
+              # Sanitize migration name to prevent SQL injection
+              migration_name_sanitized=$(echo "$migration_name" | sed 's/[^a-zA-Z0-9._-]/_/g')
+
+              # Check if already applied
+              applied=$(wrangler d1 execute ai_news_db --command="SELECT 1 FROM _migrations WHERE name = '$migration_name_sanitized'" --json | jq '.result | length')
+
+              if [ "$applied" -eq 0 ]; then
+                wrangler d1 execute ai_news_db --file="$migration"
+                wrangler d1 execute ai_news_db --command="INSERT INTO _migrations (name, applied_at) VALUES ('$migration_name_sanitized', $(date +%s)000)"
+                echo "Applied: $migration_name"
+              else
+                echo "Skipping already applied: $migration_name"
+              fi
+            fi
+          done
+
+          # Also run the main schema
+          wrangler d1 execute ai_news_db --file=./src/lib/db/schema.sql
+
+      - name: Run D1 migrations (Staging)
+        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging'
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Run migrations on staging database
+          for migration in migrations/*.sql; do
+            if [ -f "$migration" ]; then
+              wrangler d1 execute ai_news_db_staging --file="$migration" || true
+            fi
+          done
+          wrangler d1 execute ai_news_db_staging --file=./src/lib/db/schema.sql || true
+
+  # =============================================================================
+  # DEPLOY STAGING - Deploy to staging environment
+  # =============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, migrate]
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/staging' || github.event.inputs.deploy_environment == 'staging'
+    timeout-minutes: 15
+    environment:
+      name: staging
+      url: https://staging.bestblogs.dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: web/
+
+      - name: Deploy to Cloudflare Workers (Staging)
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Update wrangler.json for staging
+          cat wrangler.json | jq '.name = "ai-news-staging"' | jq '.vars.SITE_URL = "https://staging.bestblogs.dev"' > wrangler.staging.json
+
+          # Deploy to staging
+          wrangler deploy --config wrangler.staging.json
+
+      - name: Health check - Staging
+        run: |
+          max_attempts=30
+          attempt=0
+          while [ $attempt -lt $max_attempts ]; do
+            if curl -sf -o /dev/null -w "%{http_code}" https://staging.bestblogs.dev/api/health | grep -q "200"; then
+              echo "Health check passed"
+              exit 0
+            fi
+            attempt=$((attempt + 1))
+            echo "Health check attempt $attempt failed, retrying..."
+            sleep 10
+          done
+          echo "Health check failed after $max_attempts attempts"
+          exit 1
+
+      - name: Notify deployment - Staging
+        if: always()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "environment": "staging",
+              "status": "${{ job.status }}",
+              "commit": "${{ github.sha }}",
+              "branch": "${{ github.ref_name }}",
+              "actor": "${{ github.actor }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_STAGING }}
+
+  # =============================================================================
+  # DEPLOY PRODUCTION - Deploy to production with blue-green strategy
+  # =============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, migrate]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://bestblogs.dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: web/
+
+      - name: Create backup before deployment
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Get current deployment info
+          wrangler deployments list --json > backup-deployments.json
+          echo "Current deployment info saved"
+
+      - name: Deploy to Cloudflare Workers (Production)
+        id: deploy
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler deploy
+          echo "deployment_time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Health check - Production
+        id: health_check
+        run: |
+          max_attempts=30
+          attempt=0
+          while [ $attempt -lt $max_attempts ]; do
+            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" https://bestblogs.dev/api/health || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Health check passed"
+              echo "success=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            attempt=$((attempt + 1))
+            echo "Health check attempt $attempt failed (status: $STATUS), retrying..."
+            sleep 10
+          done
+          echo "success=false" >> $GITHUB_OUTPUT
+          echo "Health check failed after $max_attempts attempts"
+
+      - name: Rollback on failure
+        if: steps.health_check.outputs.success != 'true'
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "Initiating rollback due to health check failure..."
+          # Rollback to previous deployment
+          PREVIOUS_DEPLOYMENT=$(cat backup-deployments.json | jq -r '.[0].id')
+          if [ -n "$PREVIOUS_DEPLOYMENT" ]; then
+            wrangler rollback $PREVIOUS_DEPLOYMENT || echo "Rollback command failed"
+          fi
+          exit 1
+
+      - name: Smoke tests - Production
+        run: |
+          # Test critical endpoints
+          curl -sf https://bestblogs.dev/api/health | jq '.status == "ok"' | grep true
+          curl -sf https://bestblogs.dev/api/news?limit=1 | jq '.items | length' | grep -E '[0-9]+'
+          echo "Smoke tests passed"
+
+      - name: Update deployment metrics
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Store deployment info in KV for monitoring
+          wrangler kv key put "last_deployment" "{\"time\":${{ steps.deploy.outputs.deployment_time }},\"commit\":\"${GITHUB_SHA}\",\"actor\":\"${GITHUB.actor}\"}" --namespace-id=METRICS || true
+
+      - name: Notify deployment - Production
+        if: always()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "environment": "production",
+              "status": "${{ job.status }}",
+              "commit": "${{ github.sha }}",
+              "branch": "${{ github.ref_name }}",
+              "actor": "${{ github.actor }}",
+              "url": "https://bestblogs.dev"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # =============================================================================
+  # CRAWLER DEPLOYMENT - Deploy crawler worker
+  # =============================================================================
+  deploy-crawler:
+    name: Deploy Crawler Worker
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.sha }}
+          path: web/
+
+      - name: Deploy crawler worker
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -f "wrangler.crawler.json" ]; then
+            wrangler deploy --config wrangler.crawler.json
+          else
+            echo "Crawler config not found, skipping crawler deployment"
+          fi
+
+  # =============================================================================
+  # SECURITY SCANNING - Run security checks
+  # =============================================================================
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run npm audit
+        working-directory: ./web
+        run: npm audit --production
+        continue-on-error: true
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD

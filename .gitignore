@@ -1,0 +1,24 @@
+.DS_Store
+**/.DS_Store
+
+# dependencies
+**/node_modules/
+
+# build outputs
+**/.next/
+**/.open-next/
+**/.wrangler/
+**/dist/
+**/.turbo/
+
+# env files
+.env
+.env.*
+!.env.example
+
+# wrangler config (contains sensitive IDs)
+web/wrangler.json
+web/wrangler.staging.json
+web/wrangler.toml
+!web/wrangler.json.example
+

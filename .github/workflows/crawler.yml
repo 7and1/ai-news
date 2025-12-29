@@ -1,0 +1,169 @@
+# Crawler Deployment Workflow
+# Separate workflow for deploying the RSS crawler worker
+
+name: Crawler Deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/src/app/api/ingest/**"
+      - "web/src/lib/db/queries.ts"
+      - "web/wrangler.json"
+  workflow_dispatch:
+    inputs:
+      schedule_cron:
+        description: "Cron schedule for crawler"
+        required: false
+        default: "0 */2 * * *"
+        type: string
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # =============================================================================
+  # BUILD CRAWLER
+  # =============================================================================
+  build-crawler:
+    name: Build Crawler
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./web
+        run: npm ci
+
+      - name: Generate version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./web/package.json').version")
+          SHA_SHORT="${GITHUB_SHA::7}"
+          echo "version=${VERSION}-${SHA_SHORT}" >> $GITHUB_OUTPUT
+
+      - name: Build crawler
+        working-directory: ./web
+        run: |
+          # Build only what's needed for the crawler
+          npm run build:next
+          npm run build:worker
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawler-build-${{ github.sha }}
+          path: |
+            web/.open-next/
+            web/.next/
+          retention-days: 7
+
+  # =============================================================================
+  # DEPLOY CRAWLER WORKER
+  # =============================================================================
+  deploy-crawler:
+    name: Deploy Crawler Worker
+    runs-on: ubuntu-latest
+    needs: build-crawler
+    timeout-minutes: 10
+    environment:
+      name: crawler
+      url: https://ingest.bestblogs.dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: crawler-build-${{ github.sha }}
+          path: web/
+
+      - name: Deploy crawler worker
+        working-directory: ./web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # Create crawler-specific wrangler config
+          cat > wrangler.crawler.json << EOF
+          {
+            "$schema": "node_modules/wrangler/config-schema.json",
+            "name": "ai-news-crawler",
+            "main": "worker.mjs",
+            "compatibility_date": "2025-12-01",
+            "compatibility_flags": ["nodejs_compat"],
+            "assets": {
+              "directory": ".open-next/assets",
+              "binding": "ASSETS"
+            },
+            "vars": {
+              "SITE_URL": "https://bestblogs.dev",
+              "NEXT_PUBLIC_SITE_URL": "https://bestblogs.dev",
+              "NEXT_PUBLIC_SITE_NAME": "AI News",
+              "CRAWLER_ENABLED": "true",
+              "EMAIL_WORKER_ENABLED": "false"
+            },
+            "d1_databases": [
+              {
+                "binding": "DB",
+                "database_name": "ai_news_db",
+                "database_id": "$CLOUDFLARE_D1_DATABASE_ID"
+              }
+            ],
+            "kv_namespaces": [
+              {
+                "binding": "RATE_LIMIT_KV",
+                "id": "$CLOUDFLARE_KV_RATE_LIMIT_ID"
+              },
+              {
+                "binding": "LOGS",
+                "id": "$CLOUDFLARE_KV_LOGS_ID"
+              }
+            ],
+            "triggers": {
+              "crons": ["${{ github.event.inputs.schedule_cron || '0 */2 * * *' }}"]
+            }
+          }
+          EOF
+
+          wrangler deploy --config wrangler.crawler.json
+
+      - name: Test crawler endpoint
+        run: |
+          curl -sf https://ingest.bestblogs.dev/api/health || echo "Crawler health endpoint not accessible (may need DNS propagation)"
+
+      - name: Notify crawler deployment
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "service": "crawler",
+              "status": "${{ job.status }}",
+              "version": "${{ needs.build-crawler.outputs.version }}",
+              "commit": "${{ github.sha }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

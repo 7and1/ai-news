@@ -1,132 +1,109 @@
-# [BestBlogs.dev](https://bestblogs.dev)
+# AI News
 
-遇见更好的技术阅读，汇集顶级软件编程、人工智能、产品设计、商业科技、自我成长类文章，使用大语言模型进行评分、摘要、翻译等，让阅读更轻松、学习更高效。
+基于 `docs/IMPLEMENTATION_PLAN.md` 的生产级 AI 行业快讯聚合站：Cloudflare Workers + D1（边缘 SQLite）+ OpenNext + Next.js（App Router）。
 
-## 1. 介绍
+## Features
 
-BestBlogs.dev 为您提供编程、人工智能、产品设计、商业科技和个人成长领域的精选内容，汇集自顶级技术公司和社区。我们利用先进的大语言模型，为每篇文章提供智能摘要、评分和翻译服务，帮助您快速筛选高价值内容，节省阅读时间。立即订阅，探索未来技术的无限可能！
+- SEO: `sitemap.xml` / `robots.txt` / JSON-LD / OG Image
+- D1 schema + seeds: `web/src/lib/db/schema.sql`, `web/src/lib/db/seed.sql`
+- Public APIs: `/api/news`, `/api/search`, `/api/news/:id`, `/rss.xml`
+- Ingest pipeline: `/api/ingest`（带密钥）
+- Crawler: `docker/crawler`（RSS -> 可选 Jina 全文 -> 可选 Claude/Gemini -> ingest）
+- CI/CD: Automated testing, building, and deployment
 
-![主要特性](./images/main_page_v4.png)
+## Quick Start (Local)
 
-![订阅精选](./images/main_page_v4_2.png)
+### 1) Web (Next.js + OpenNext + Wrangler)
 
-### 1.1 优质文章
+```bash
+cd web
+npm install
 
-![文章列表](./images/article_list_v4.png)
+# 初始化本地 D1（wrangler local）
+npm run d1:migrate:local
+npm run d1:seed:local
 
-### 1.2 品质播客
+# 预览 Workers 运行形态（推荐）
+npm run preview
+```
 
-![播客列表](./images/podcast_list_v4.png)
+访问：
 
-### 1.3 精选视频
+- `http://localhost:3000`
+- `http://localhost:3000/rss.xml`
+- `http://localhost:3000/api/health`
 
-![视频列表](./images/video_list_v4.png)
+### 2) Crawler
 
-### 1.4 热门推文
+```bash
+cd docker/crawler
+npm install
+cp .env.example .env
 
-![推文列表](./images/twitter_list_v4.png)
+# 填写 AI_NEWS_BASE_URL / INGEST_SECRET（需与 web/wrangler.json vars 匹配）
+npm run build
+node dist/index.js
+```
 
-## 2. 订阅
+## Config
 
-网站订阅地址：[https://www.bestblogs.dev/#subscribe](https://www.bestblogs.dev/#subscribe)
+- `web/wrangler.json`: `vars.SITE_URL`, `vars.INGEST_SECRET`, `vars.CRON_SECRET`
+- `docker/crawler/.env`: `AI_NEWS_BASE_URL`, `INGEST_SECRET`, 可选 `ANTHROPIC_API_KEY` / `GEMINI_API_KEY`
 
-每周五推送最新的[精选推送](https://www.bestblogs.dev/newsletter)，包含本周最具价值的技术文章、人工智能动态、产品设计洞察等优质内容。
+## CI/CD
 
-![精选推送](./images/newsletter_list_v4.png)
+The project includes a complete CI/CD pipeline:
 
-## 3. RSS 源
+- **GitHub Actions**: Automated testing, building, and deployment
+- **Pre-commit Hooks**: Linting and formatting with Husky
+- **Database Migrations**: Version-controlled schema changes with rollback support
+- **Monitoring**: Health checks, logging, and error tracking
 
-网站内容来源于以下 RSS 订阅源（共 400 个）：
+See [docs/ci-cd/README.md](./docs/ci-cd/README.md) for full documentation.
 
-**所有订阅源：** [BestBlogs_RSS_ALL.opml](./BestBlogs_RSS_ALL.opml)
+### Developer Setup
 
-- **文章类**（170 个订阅源）：[BestBlogs_RSS_Articles.opml](./BestBlogs_RSS_Articles.opml)
-- **播客类**（30 个订阅源）：[BestBlogs_RSS_Podcasts.opml](./BestBlogs_RSS_Podcasts.opml)  
-- **视频类**（40 个订阅源）：[BestBlogs_RSS_Videos.opml](./BestBlogs_RSS_Videos.opml)
-- **Twitter 类**（160 个订阅源）：[BestBlogs_RSS_Twitters.opml](./BestBlogs_RSS_Twitters.opml)
+```bash
+# Run the CI/CD setup script
+./scripts/setup-ci-cd.sh
 
-您可以在 [订阅源页面](https://www.bestblogs.dev/sources) 浏览所有 RSS 订阅源信息，包括最近 3 个月的文章数量、精选文章数量和阅读数统计。
+# Or manually:
+cd web
+npm install
+npx husky install
+```
 
-![订阅源页面](./images/source_page_v4.png)
+### Available Commands
 
-您可以直接导入这些 OPML 文件到您的 RSS 阅读器中。如有优质的 RSS 订阅源推荐，欢迎提 Issue 补充。
+| Command                 | Description                  |
+| ----------------------- | ---------------------------- |
+| `npm run lint`          | Run ESLint                   |
+| `npm run lint:fix`      | Fix ESLint issues            |
+| `npm run format`        | Format code with Prettier    |
+| `npm run typecheck`     | Check TypeScript types       |
+| `npm run test`          | Run tests                    |
+| `npm run test:coverage` | Run tests with coverage      |
+| `npm run build`         | Build for production         |
+| `npm run deploy`        | Deploy to Cloudflare Workers |
 
-## 4. 本站 RSS 订阅指南
+### Deployment
 
-BestBlogs.dev 提供灵活的 RSS 订阅功能，支持按需订阅：
+**Automatic**: Push to `main` branch triggers production deployment
 
-- **全站订阅：** [https://www.bestblogs.dev/zh/feeds/rss](https://www.bestblogs.dev/zh/feeds/rss)
-- **所有精选内容订阅：** [https://www.bestblogs.dev/zh/feeds/rss?featured=y](https://www.bestblogs.dev/zh/feeds/rss?featured=y)
-- **编程技术类文章：** [https://www.bestblogs.dev/zh/feeds/rss?category=programming&type=article](https://www.bestblogs.dev/zh/feeds/rss?category=programming&type=article)
-- **人工智能高分内容：** [https://www.bestblogs.dev/en/feeds/rss?category=ai&minScore=90](https://www.bestblogs.dev/en/feeds/rss?category=ai&minScore=90)
+**Manual**:
 
-更多参数说明和用法请参考：[BestBlogs.dev RSS 订阅指南](./BestBlogs_RSS_Doc.md)
+```bash
+# Deploy to staging
+./scripts/deploy.sh staging
 
-另外网站还添加了每周精选推送周刊的 RSS 订阅支持，订阅地址：[https://www.bestblogs.dev/zh/feeds/rss/newsletter](https://www.bestblogs.dev/zh/feeds/rss/newsletter)
+# Deploy to production
+./scripts/deploy.sh production
+```
 
-## 5. 开放 API
+## Documentation
 
-BestBlogs.dev 提供开放 API 接口，支持文章、播客、推文等内容的智能分析和获取。
-
-API 文档：[BestBlogs_OpenAPI_Doc.md](./BestBlogs_OpenAPI_Doc.md)
-
-## 6. 实现原理
-
-### 6.1 文章智能分析
-
-详细实践文档：[BestBlogs.dev 基于 Dify Workflow 的文章智能分析实践](./flows/Dify/BestBlogs.dev%20基于%20Dify%20Workflow%20的文章智能分析实践.md)
-
-![主要流程](./flows/Dify/flowImages/bestblogs_main_flow.png)
-
-**1. 文章爬取流程**
-基于 RSS 协议爬取所有订阅源的文章信息（标题、链接、发布时间等），通过无头浏览器获取完整文章内容。利用订阅源配置的正文选择器提取文章正文，并对 HTML、图片等进行标准化处理。
-
-**2. 文章初评流程**  
-通过语言类型、内容质量等特征对文章进行初步评分，过滤低质量内容，提高后续处理效率。使用 Dify Workflow 实现，DSL 参见：[BestBlogs 文章初评流程](./flows/Dify/dsl/BestBlogs%20文章初评流程.yml)
-
-**3. 文章深度分析流程**  
-通过大语言模型（GPT-4o）对文章进行全面分析，生成一句话总结、详细摘要、主要观点、文章金句、领域分类、标签列表和质量评分等。包含 *分段分析 → 汇总分析 → 领域划分和标签生成 → 文章评分 → 检查反思 → 优化改进* 等环节。DSL 参见：[BestBlogs 文章分析流程](./flows/Dify/dsl/BestBlogs%20文章分析流程.yml)
-
-**4. 多语言翻译流程**  
-支持中英双语，自动识别原文语言并生成目标语言的分析结果。包含 *识别专业术语 → 初次翻译 → 检查翻译 → 意译优化* 等环节。DSL 参见：[BestBlogs 文章分析结果翻译流程](./flows/Dify/dsl/BestBlogs%20文章分析结果翻译.yml)
-
-### 6.2 播客智能分析
-
-实现方案详见：[BestBlogs.dev 基于通义听悟和 Dify 实现播客智能分析](./docs/BestBlogs.dev%20基于通义听悟和%20Dify%20实现播客智能分析.md)
-
-### 6.3 视频智能分析
-
-方案开发中，敬请期待 🎬
-
-### 6.4 推文智能分析
-
-实现方案详见：[BestBlogs.dev 基于 XGo.ing 和 Dify 实现推文智能分析](./docs/BestBlogs.dev%20基于%20XGo.ing%20和%20Dify%20实现推文智能分析.md)
-
-## 7. 支持与交流
-
-如果您觉得 BestBlogs.dev 对您有帮助，欢迎：
-
-- ⭐ 给项目点个 Star
-- 💝 赞赏支持项目发展  
-- 👥 加入读者交流群讨论
-- 📧 邮件反馈建议：[hi@gino.bot](mailto:hi@gino.bot)
-
-<div align="center">
-
-| 赞赏支持项目发展 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 添加作者微信加入群聊 |
-|:---:|:---:|:---:|
-| <img src="https://bestblogs.dev/support-qrcode.png" alt="赞赏支持项目发展" width="200" /> | | <img src="https://bestblogs.dev/author-qrcode.png" alt="添加微信加入群聊" width="200" /> |
-
-</div>
-
-## 8. 致谢
-
-感谢以下开源项目的支持：
-
-- [RSSHub](https://github.com/DIYgod/RSSHub) - 万物皆可 RSS
-- [wechat2rss](https://github.com/ttttmr/Wechat2RSS) - 微信公众号转 RSS
-- [Dify](https://github.com/langgenius/dify) - LLM 应用开发平台
-- [Gemini Balancer](https://github.com/snailyp/gemini-balance) - Gemini 轮询代理服务
-- [Bark](https://github.com/Finb/Bark) - iOS 推送通知工具
-- [Uptime Kuma](https://github.com/louislam/uptime-kuma) - 自建监控服务
-- [XGo.ing](https://xGo.ing) - 推文 RSS
+- [CI/CD Documentation](./docs/ci-cd/)
+- [Deployment Runbook](./docs/ci-cd/DEPLOYMENT_RUNBOOK.md)
+- [Troubleshooting Guide](./docs/ci-cd/CI_CD_TROUBLESHOOTING.md)
+- [Database Migrations](./docs/ci-cd/DATABASE_MIGRATIONS.md)
+- [Monitoring Setup](./docs/ci-cd/MONITORING.md)

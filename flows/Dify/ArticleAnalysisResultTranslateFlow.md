@@ -7,7 +7,7 @@
 流程说明：
 
 - 分析结果翻译流程的输入为网站的文章 ID，然后通过 Workflow 内置的 HTTP 调用节点和代码节点，调用网站的 API 获取文章的元数据（标题、来源、链接、语言、目标语言等）、全文内容和分析结果。
-- 翻译流程采用了 *初次翻译 -- 检查反思 -- 优化改进，意译* 三段式翻译流程，从而让翻译更加符合目标语言的表达习惯。
+- 翻译流程采用了 _初次翻译 -- 检查反思 -- 优化改进，意译_ 三段式翻译流程，从而让翻译更加符合目标语言的表达习惯。
 - API 调用分析结果翻译流程返回结果后，该文章自动化分析流程结束，标记为已处理状态。
 
 ## DSL 文件
@@ -20,17 +20,20 @@
 
 ### 直接翻译系统提示词
 
-````markdown
+```markdown
 # AI 翻译专家
 
 ## 任务
+
 识别并翻译给定JSON文本中的专业术语和内容。将原始语言翻译成目标语言。
 
 ## 步骤
+
 1. 识别所有字段中的专业术语。
 2. 使用识别的专业术语，翻译整个JSON内容。
 
 ## 翻译规则与注意事项
+
 1. 准确翻译专业术语：
    - 按照通用使用习惯处理全称和缩写。
    - 保留常用缩写，如AI、UX、LLM、Java等。
@@ -41,26 +44,30 @@
 6. 保持格式：维持原JSON结构，包括保留原有的key名称。
 
 ## 质量检查
+
 - 确保翻译准确性和流畅性
 - 检查专业术语使用的一致性
 - 验证是否保持了原文的核心含义和语气
 
 ## 输入
+
 1. 原始语言：[在用户提示词中指定]
 2. 目标语言：[在用户提示词中指定]
 3. 待翻译的JSON字符串：
-[在用户提示词中提供]
+   [在用户提示词中提供]
 
 ## 输出格式
 
 ### 1. 专业术语列表
+
 {原文术语1} -> {翻译后术语1}
 {原文术语2} -> {翻译后术语2}
 {原文术语3} -> {翻译后术语3}
 
 ### 2. 翻译后的JSON（保持原有结构和key名称）
+
 [完整的翻译后JSON]
-````
+```
 
 ### 直接翻译输入
 
@@ -68,13 +75,13 @@
 请根据要求识别专业术语，并对 JSON 字符串进行翻译，按要求输出翻译后的目标语言的 JSON 字符串，包括保留原有的key名称。
 
 1. 原始语言：
-{{#1719357159255.languageName#}}
+   {{#1719357159255.languageName#}}
 
 2. 目标语言：
-{{#1719357159255.destLanguageName#}}
+   {{#1719357159255.destLanguageName#}}
 
 3. 待翻译的JSON字符串：
-   
+
 ```json
 {{#1719357159255.analysisResult#}}
 ```
@@ -105,7 +112,20 @@
   "title": "Practice of Search Advertising Retrieval Technology at Meituan",
   "oneSentenceSummary": "This article details Meituan's practice in search advertising retrieval technology, covering multi-strategy keyword mining, hierarchical retrieval systems, and generative retrieval, and discusses the future development direction of generative retrieval.",
   "summary": "The article 'Practice of Search Advertising Retrieval Technology at Meituan' by Meituan's technical team details the company's exploration and application in search advertising retrieval technology. It first analyzes the traffic characteristics and challenges faced by Meituan's search advertising, pointing out features such as poor content quality from Meituan merchants and the dominance of product intent. To address these challenges, Meituan began building search advertising retrieval technology in 2019, going through three main development stages: multi-strategy keyword mining, hierarchical retrieval systems, and generative retrieval. In the multi-strategy keyword mining stage, Meituan adopted rule-based mining strategies and gradually introduced model methods to automatically mine keywords, including extractive and generative methods. As technology evolved, Meituan shifted its focus to generative mining, hoping to break through literal limits with generative large model technology and explore larger traffic spaces. In the hierarchical retrieval system stage, Meituan used both offline and online retrieval methods, enhancing online matching efficiency through keyword mining and query rewriting. During the generative retrieval stage, Meituan focused on exploring generative keyword retrieval and multimodal generative vector retrieval, improving vector representation capabilities and keyword generation consistency. Additionally, the article introduces Meituan's efforts in building an advertising large model, optimizing offline keyword retrieval efficiency by integrating domain and scenario knowledge. The article summarizes Meituan's practical experience and future development direction in generative retrieval, emphasizing the advantages of generative algorithms in expanding retrieval strategy spaces.",
-  "tags": ["Search Advertising", "Retrieval Technology", "Generative Retrieval", "Large Model", "Multimodal Representation", "Keyword Mining", "Diffusion Model", "Meituan", "Artificial Intelligence", "Online Advertising", "Advertising Large Model", "Generative Algorithm Optimization"],
+  "tags": [
+    "Search Advertising",
+    "Retrieval Technology",
+    "Generative Retrieval",
+    "Large Model",
+    "Multimodal Representation",
+    "Keyword Mining",
+    "Diffusion Model",
+    "Meituan",
+    "Artificial Intelligence",
+    "Online Advertising",
+    "Advertising Large Model",
+    "Generative Algorithm Optimization"
+  ],
   "mainPoints": [
     {
       "explanation": "Mainly includes the dominance of product intent and poor content quality from Meituan merchants. Challenges include computational anxiety and iteration efficiency with larger model sizes.",
@@ -137,13 +157,15 @@
 
 ### 指出直接翻译的问题系统提示词
 
-````markdown
+```markdown
 # AI 翻译检查专家
 
 ## 简介
+
 指导大语言模型分析技术文章预处理结果的初次翻译，识别问题，为后续优化奠定基础。
 
 ## 背景
+
 - 内容：网站中涵盖人工智能、编程、产品、设计、商业和科技等领域技术文章
 - 预处理：已提取标题、摘要、主要观点、关键金句和标签
 - 翻译方向：英译中或中译英
@@ -151,9 +173,11 @@
 - 要求：准确传达原意，符合目标语言习惯
 
 ## 任务目标
+
 全面检查初次翻译，识别问题，为后续优化提供指南。
 
 ## 输入格式
+
 1. 原始语言
 2. 目标语言
 3. 原文（Markdown）
@@ -161,6 +185,7 @@
 5. 专业术语识别及初次翻译结果
 
 ## JSON 结构
+
 - title: 标题
 - oneSentenceSummary: 一句话总结
 - summary: 全文摘要
@@ -169,6 +194,7 @@
 - keyQuotes: 关键引用
 
 ## 分析要点
+
 1. 术语与技术概念
    - 定位：术语或技术概念的翻译问题
    - 描述：准确性、一致性或表达问题
@@ -194,6 +220,7 @@
    - 示例：统一中英文混排的空格使用，在中文和英文、数字之间增加空格
 
 ## 输出要求与质量保证
+
 1. 使用 Markdown 格式的分点列表，每个问题包括位置、描述和建议
 2. 保持专业、客观的语气，使用准确的技术术语
 3. 聚焦问题识别，不需提供完整重写
@@ -203,7 +230,7 @@
 7. 指出任何影响整体理解的翻译问题
 8. 确保问题描述清晰具体，与文章技术性相符
 9. 最后总结主要问题类型和改进方向
-````
+```
 
 ### 指出直接翻译的问题输入
 
@@ -211,28 +238,30 @@
 请根据要求对文章分析结果 JSON 字符翻译结果进行检查，按要求输出翻译中存在的问题。
 
 1. 原始语言：
-{{#1719357159255.languageName#}}
+   {{#1719357159255.languageName#}}
 
 2. 目标语言：
-{{#1719357159255.destLanguageName#}}
+   {{#1719357159255.destLanguageName#}}
 
 3. 原文（Markdown）：
+
 ```markdown
 {{#1719357159255.markdown#}}
 ```
 
 4. 原文分析结果（JSON）：
+
 ```json
 {{#1719357159255.analysisResult#}}
 ```
 
 5. 专业术语识别及初次翻译结果
-{{#1719665970105.text#}}
+   {{#1719665970105.text#}}
 ````
 
 ### 指出直接翻译的问题输出示例
 
-````markdown
+```markdown
 ## 翻译检查结果
 
 **总体评价:** 翻译结果基本准确，但存在一些语言表达和专业术语使用问题，需要进行优化。
@@ -289,28 +318,32 @@
 **总结:**
 
 通过对翻译结果进行检查，可以发现一些需要改进的地方，例如语言表达、专业术语使用和翻译准确性。对这些问题进行优化，可以提升翻译质量，使目标语言读者更易理解文章内容。
-````
+```
 
 ## 意译，第二次翻译
 
 ### 意译系统提示词
 
-````markdown
+```markdown
 # AI 翻译优化专家
 
 ## 简介
+
 对初次翻译的技术文章进行优化和意译，确保翻译既忠实原意又符合目标语言表达习惯。
 
 ## 背景
+
 - 内容：网站上关于人工智能、编程技术、产品、设计、商业、科技类的文章，已提取文章标题、一句话总结、文章摘要、主要观点、关键金句和标签等信息的 JSON 字符串
 - 初次翻译：已完成，但可能存在问题
 - 翻译方向：英译中或中译英
 - 目标：提高翻译质量，使其更易于目标读者理解
 
 ## 任务目标
+
 基于初次翻译和识别出的问题，进行重新翻译和意译，提高准确性、可读性和文化适应性。
 
 ## 输入格式
+
 1. 原始语言
 2. 目标语言
 3. 原文分析结果（JSON）
@@ -318,6 +351,7 @@
 5. 翻译问题分析结果（Markdown）
 
 ## JSON 结构
+
 - title: 标题
 - oneSentenceSummary: 一句话总结
 - summary: 全文摘要
@@ -326,6 +360,7 @@
 - keyQuotes: 关键引用
 
 ## 分析要点
+
 1. 术语与技术概念
    - 确保专业术语翻译准确且一致
    - 对难懂概念适当添加简短解释
@@ -347,6 +382,7 @@
    - 保持标点符号使用的一致性
 
 ## 输出要求与质量保证
+
 1. 输出格式：仅输出 JSON 字符串，保持结构和原始 JSON 字符串一致，仅将其中的值翻译为目标语言
 2. 准确性：
    - 准确传达原文核心意思，不遗漏关键信息
@@ -365,7 +401,7 @@
    - 保持 JSON 结构和键名不变
 
 请根据以上指南，对提供的输入进行全面分析和优化翻译，以 JSON 格式输出改进后的结果。确保翻译既准确传达原意，又充分适应目标语言的表达习惯和文化背景。
-````
+```
 
 ### 意译输入
 
@@ -373,21 +409,22 @@
 请根据要求识别对文章分析结果 JSON 字符串、直接翻译结果、翻译问题分析结果进行综合分析处理，按要求输出改进后的翻译，以 JSON 字符串输出。
 
 1. 原始语言：
-{{#1719357159255.languageName#}}
+   {{#1719357159255.languageName#}}
 
 2. 目标语言：
-{{#1719357159255.destLanguageName#}}
+   {{#1719357159255.destLanguageName#}}
 
 3. 原文分析结果（JSON）：
+
 ```json
 {{#1719357159255.analysisResult#}}
 ```
 
 4. 识别的专业术语列表和初次翻译结果：
-{{#1719665970105.text#}}
+   {{#1719665970105.text#}}
 
 5. 初次翻译问题分析结果：
-{{#1719666182344.text#}}
+   {{#1719666182344.text#}}
 ````
 
 ### 意译输出示例
@@ -398,7 +435,20 @@
   "title": "Meituan's Journey to Generative Retrieval for Search Ads",
   "oneSentenceSummary": "This article explores Meituan's innovative use of generative retrieval to enhance search ad efficiency, covering multi-strategy keyword extraction, hierarchical retrieval systems, and generative retrieval.",
   "summary": "This article by Meituan's technical team details the company's exploration and application of search advertising retrieval technology. It analyzes the traffic characteristics and challenges of Meituan's search advertising, highlighting the dominance of product intent and the need to improve merchant content quality. To address these challenges, Meituan has developed a search advertising retrieval technology that has evolved through three stages: multi-strategy keyword extraction, hierarchical retrieval systems, and generative retrieval. The article emphasizes the shift towards generative retrieval, leveraging large language models to break through literal limitations and explore larger traffic spaces. Meituan's hierarchical retrieval system utilizes both offline and online retrieval methods, enhancing online matching efficiency through keyword extraction and query rewriting. The generative retrieval stage focuses on exploring generative keyword retrieval and multimodal generative vector retrieval, improving vector representation capabilities and keyword generation consistency. The article also discusses Meituan's efforts in building an advertising domain large model, optimizing offline keyword retrieval efficiency by integrating domain and scenario knowledge. The article concludes by summarizing Meituan's practical experience and future development direction in generative retrieval, highlighting the advantages of generative algorithms in expanding retrieval strategy spaces.",
-  "tags": ["Search Advertising", "Retrieval Technology", "Generative Retrieval", "Large Model", "Multimodal Representation", "Keyword Extraction", "Diffusion Model", "Meituan", "Artificial Intelligence", "Online Advertising", "Advertising Domain Large Model", "Generative Algorithm Optimization"],
+  "tags": [
+    "Search Advertising",
+    "Retrieval Technology",
+    "Generative Retrieval",
+    "Large Model",
+    "Multimodal Representation",
+    "Keyword Extraction",
+    "Diffusion Model",
+    "Meituan",
+    "Artificial Intelligence",
+    "Online Advertising",
+    "Advertising Domain Large Model",
+    "Generative Algorithm Optimization"
+  ],
   "mainPoints": [
     {
       "explanation": "Key characteristics include the dominance of product intent and the need to improve merchant content quality. Challenges include computational resource constraints and model scalability.",
@@ -439,9 +489,9 @@
 
 **其他改进:**
 
-* 调整部分句子结构，使其更符合英文表达习惯。
-* 添加一些连接词，使文章更加流畅。
-* 保持 JSON 结构和键名不变。
+- 调整部分句子结构，使其更符合英文表达习惯。
+- 添加一些连接词，使文章更加流畅。
+- 保持 JSON 结构和键名不变。
 
 **注意:** 翻译结果仅供参考，建议您根据具体情况进行调整。
 ````
@@ -461,7 +511,18 @@
   "title": "Claude's New Feature: Generate, Test, and Evaluate Prompts with One Click, Making Prompt Writing Accessible to Everyone!",
   "oneSentenceSummary": "Anthropic's Claude introduces a new feature that empowers even non-technical users to easily generate, test, and evaluate prompts, significantly boosting the accessibility and efficiency of AI application development.",
   "summary": "Anthropic has unveiled a new feature for its AI tool Claude, introducing a prompt generation, testing, and evaluation tool designed to streamline the prompt creation process. Users simply need to describe the task, and Claude will generate high-quality prompts, providing test cases and quality scores, making prompt optimization and iteration more convenient. This feature automates the process, significantly reducing the time users spend on prompt optimization, earning praise from AI bloggers who believe it saves considerable time and provides a rapid iteration starting point.",
-  "tags": ["AI Applications", "Large Language Models (LLMs)", "Prompt Engineering", "Development Tools", "Anthropic", "Claude", "Automated Process", "AI Development Efficiency", "Non-Technical User Friendly", "User Experience"],
+  "tags": [
+    "AI Applications",
+    "Large Language Models (LLMs)",
+    "Prompt Engineering",
+    "Development Tools",
+    "Anthropic",
+    "Claude",
+    "Automated Process",
+    "AI Development Efficiency",
+    "Non-Technical User Friendly",
+    "User Experience"
+  ],
   "mainPoints": [
     {
       "explanation": "Users input task descriptions, and Claude automatically generates high-quality prompts, simplifying the prompt creation process.",

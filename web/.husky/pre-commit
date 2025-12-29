@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+if [ -n "$HUSKY" ]; then
+  # When using Husky with pnpm/npm
+  cd "web" && npx --no-install lint-staged
+else
+  # When using standalone Husky
+  cd "web" && npx lint-staged
+fi

@@ -1,0 +1,24 @@
+# Development environment variables for `wrangler dev`
+# DO NOT commit this file or use these values in production
+# Copy this file to .dev.vars and set your own values
+
+# Site Configuration
+SITE_URL=http://localhost:3000
+
+# Secret Keys (use strong, unique values in development!)
+# These should be at least 32 characters long
+INGEST_SECRET=dev-ingest-secret-change-me-in-production
+CRON_SECRET=dev-cron-secret-change-me-in-production
+JWT_SECRET=dev-jwt-secret-change-me-in-production-at-least-32-chars
+
+# Rate Limiting (can use lower values in dev)
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_PUBLIC_REQUESTS=100
+RATE_LIMIT_PUBLIC_WINDOW=60
+RATE_LIMIT_SEARCH_REQUESTS=50
+RATE_LIMIT_SEARCH_WINDOW=60
+
+# Security Configuration
+ALLOWED_ORIGINS=*
+CSP_ENABLED=true
+JWT_ISSUER=bestblogs.dev
