@@ -20,7 +20,7 @@ import { generateNewsArticleJsonLd } from '@/lib/seo';
 // =============================================================================
 // Revalidate every hour for individual articles (content rarely changes)
 export const revalidate = 3600;
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic'; // Use SSR since D1 bindings not available at build
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

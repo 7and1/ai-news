@@ -6,12 +6,11 @@ import { listNews, listTopTags } from '@/lib/db/queries';
 import { generateWebSiteJsonLd } from '@/lib/seo';
 
 // =============================================================================
-// CACHE CONFIGURATION - ISR for optimal performance
+// CACHE CONFIGURATION - SSR with revalidation for optimal performance
 // =============================================================================
 // Revalidate every 5 minutes (300 seconds) for fresh content
-// This allows serving cached content while updating in the background
 export const revalidate = 300;
-export const dynamic = 'force-static'; // Prefer static generation
+export const dynamic = 'force-dynamic'; // Use SSR since D1 bindings not available at build
 
 export default async function HomePage() {
   const [{ items }, topTags] = await Promise.all([

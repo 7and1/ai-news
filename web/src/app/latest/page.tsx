@@ -6,10 +6,11 @@ import { NewsGrid } from '@/components/news/NewsGrid';
 import { listNews } from '@/lib/db/queries';
 
 // =============================================================================
-// CACHE CONFIGURATION - ISR for optimal performance
+// CACHE CONFIGURATION - SSR with revalidation for optimal performance
 // =============================================================================
 // Revalidate every 2 minutes (120 seconds) for latest news
 export const revalidate = 120;
+export const dynamic = 'force-dynamic'; // Use SSR since D1 bindings not available at build
 
 export default async function LatestPage({
   searchParams,
