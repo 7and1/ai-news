@@ -1,4 +1,4 @@
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -13,7 +13,6 @@ const unsubscribeSchema = z.object({
   token: z.string().optional(),
   email: z.string().email().optional(),
 });
-
 
 /**
  * POST /api/newsletter/unsubscribe

@@ -96,10 +96,12 @@ async function sendWebhookAlert(event: AlertEvent): Promise<boolean> {
       await logger.info('Alert webhook sent successfully', { alertId: event.id }).catch(() => {});
       return true;
     } else {
-      await logger.warn('Alert webhook failed', {
-        status: response.status,
-        alertId: event.id,
-      }).catch(() => {});
+      await logger
+        .warn('Alert webhook failed', {
+          status: response.status,
+          alertId: event.id,
+        })
+        .catch(() => {});
       return false;
     }
   } catch (error) {
@@ -256,10 +258,14 @@ export async function evaluateAlertCondition(
 async function getRecentMetricCount(metricKey: string, since: number): Promise<number> {
   try {
     const env = await getEnv();
-    if (!env.METRICS) {return 0;}
+    if (!env.METRICS) {
+      return 0;
+    }
 
     const data = await env.METRICS.get(metricKey, 'json');
-    if (!data || typeof data !== 'object') {return 0;}
+    if (!data || typeof data !== 'object') {
+      return 0;
+    }
 
     const counter = data as {
       values: Array<{ timestamp: number; value: number }>;
@@ -277,7 +283,9 @@ async function getRecentMetricCount(metricKey: string, since: number): Promise<n
 export async function getAlertConditions(): Promise<AlertCondition[]> {
   try {
     const env = await getEnv();
-    if (!env.METRICS) {return DEFAULT_ALERT_CONDITIONS;}
+    if (!env.METRICS) {
+      return DEFAULT_ALERT_CONDITIONS;
+    }
 
     const keys = await env.METRICS.list({ prefix: 'alert_condition:' });
     const conditions: AlertCondition[] = [...DEFAULT_ALERT_CONDITIONS];
@@ -306,7 +314,9 @@ export async function getAlertConditions(): Promise<AlertCondition[]> {
 export async function getRecentAlerts(limit: number = 50): Promise<AlertEvent[]> {
   try {
     const env = await getEnv();
-    if (!env.METRICS) {return [];}
+    if (!env.METRICS) {
+      return [];
+    }
 
     const indexKey = 'alerts:recent';
     const index = await env.METRICS.get(indexKey, 'json');
@@ -333,10 +343,14 @@ export async function getRecentAlerts(limit: number = 50): Promise<AlertEvent[]>
 export async function resolveAlert(alertId: string): Promise<boolean> {
   try {
     const env = await getEnv();
-    if (!env.METRICS) {return false;}
+    if (!env.METRICS) {
+      return false;
+    }
 
     const data = await env.METRICS.get('alert:' + alertId, 'json');
-    if (!data || typeof data !== 'object') {return false;}
+    if (!data || typeof data !== 'object') {
+      return false;
+    }
 
     const alert = data as AlertEvent;
     alert.resolved = true;
@@ -359,7 +373,9 @@ export async function resolveAlert(alertId: string): Promise<boolean> {
 export async function updateAlertCondition(condition: AlertCondition): Promise<boolean> {
   try {
     const env = await getEnv();
-    if (!env.METRICS) {return false;}
+    if (!env.METRICS) {
+      return false;
+    }
 
     const key = 'alert_condition:' + condition.id;
     await env.METRICS.put(key, JSON.stringify(condition), {

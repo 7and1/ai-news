@@ -9,7 +9,9 @@ interface RelatedArticlesProps {
 }
 
 export function RelatedArticles({ articles, title = 'Related Articles' }: RelatedArticlesProps) {
-  if (articles.length === 0) {return null;}
+  if (articles.length === 0) {
+    return null;
+  }
 
   return (
     <aside className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">

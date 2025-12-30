@@ -227,7 +227,8 @@ export const POST = createMiddleware(
         errorCount: s.errorCount,
       }));
 
-      const result = sources.length > 0 ? await batchCrawlSources(config, db as any, sources as any) : null;
+      const result =
+        sources.length > 0 ? await batchCrawlSources(config, db as any, sources as any) : null;
       const durationMs = Date.now() - startedAt;
 
       const response = NextResponse.json({

@@ -16,8 +16,12 @@ function isNullish(value: unknown): value is null | undefined {
 }
 
 function parseTags(tags: unknown): string[] {
-  if (Array.isArray(tags)) {return tags.filter((t) => typeof t === 'string');}
-  if (typeof tags !== 'string' || tags.trim() === '') {return [];}
+  if (Array.isArray(tags)) {
+    return tags.filter((t) => typeof t === 'string');
+  }
+  if (typeof tags !== 'string' || tags.trim() === '') {
+    return [];
+  }
   try {
     const parsed = JSON.parse(tags);
     if (Array.isArray(parsed)) {
@@ -30,7 +34,9 @@ function parseTags(tags: unknown): string[] {
 }
 
 function parseEntities(entities: unknown): NewsEntities | null {
-  if (isNullish(entities)) {return null;}
+  if (isNullish(entities)) {
+    return null;
+  }
   if (typeof entities === 'object' && entities !== null) {
     const e = entities as Record<string, unknown>;
     return {
@@ -40,7 +46,9 @@ function parseEntities(entities: unknown): NewsEntities | null {
       concepts: Array.isArray(e.concepts) ? e.concepts.map(String) : [],
     };
   }
-  if (typeof entities !== 'string' || entities.trim() === '') {return null;}
+  if (typeof entities !== 'string' || entities.trim() === '') {
+    return null;
+  }
   try {
     const parsed = JSON.parse(entities);
     if (typeof parsed === 'object' && parsed !== null) {
@@ -116,7 +124,9 @@ export function mapTopicRow(row: Record<string, unknown>): TopicPage {
     metaDescription: isNullish(row.meta_description) ? null : String(row.meta_description),
     contentHtml: isNullish(row.content_html) ? null : String(row.content_html),
     newsCount: Number(row.news_count ?? 0),
-    lastNewsUpdatedAt: isNullish(row.last_news_updated_at) ? null : Number(row.last_news_updated_at),
+    lastNewsUpdatedAt: isNullish(row.last_news_updated_at)
+      ? null
+      : Number(row.last_news_updated_at),
     isActive: Number(row.is_active ?? 1) === 1,
     createdAt: Number(row.created_at ?? Date.now()),
     updatedAt: Number(row.updated_at ?? Date.now()),
@@ -141,7 +151,9 @@ export function mapCompanyRow(row: Record<string, unknown>): Company {
     metaDescription: isNullish(row.meta_description) ? null : String(row.meta_description),
     contentHtml: isNullish(row.content_html) ? null : String(row.content_html),
     newsCount: Number(row.news_count ?? 0),
-    lastNewsUpdatedAt: isNullish(row.last_news_updated_at) ? null : Number(row.last_news_updated_at),
+    lastNewsUpdatedAt: isNullish(row.last_news_updated_at)
+      ? null
+      : Number(row.last_news_updated_at),
     isActive: Number(row.is_active ?? 1) === 1,
     createdAt: Number(row.created_at ?? Date.now()),
     updatedAt: Number(row.updated_at ?? Date.now()),

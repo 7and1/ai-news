@@ -34,7 +34,9 @@ const DEFAULT_PREFERENCES: SubscriberPreferences = {
 
 // Helper to parse preferences from JSON
 function parsePreferences(json: string | null): SubscriberPreferences {
-  if (!json) {return DEFAULT_PREFERENCES;}
+  if (!json) {
+    return DEFAULT_PREFERENCES;
+  }
   try {
     const parsed = JSON.parse(json);
     return {
@@ -74,24 +76,26 @@ export async function getSubscriberByEmail(email: string): Promise<Subscriber | 
     .bind(email.toLowerCase())
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
 
-	  const r = row as Record<string, unknown>;
-	  return {
-	    id: String(r.id),
-	    email: String(r.email),
-	    confirmed: Number(r.confirmed) === 1,
-	    confirmationToken: r.confirmation_token as string | null,
-	    unsubscribeToken: r.unsubscribe_token as string | null,
-	    preferences: parsePreferences(r.preferences as string | null),
-	    subscribedAt: Number(r.subscribed_at),
-	    confirmedAt: numberOrNull(r.confirmed_at),
-	    unsubscribedAt: numberOrNull(r.unsubscribed_at),
-	    lastSentAt: numberOrNull(r.last_sent_at),
-	    sendCount: Number(r.send_count || 0),
-	    createdAt: Number(r.created_at),
-	    updatedAt: Number(r.updated_at),
-	  };
+  const r = row as Record<string, unknown>;
+  return {
+    id: String(r.id),
+    email: String(r.email),
+    confirmed: Number(r.confirmed) === 1,
+    confirmationToken: r.confirmation_token as string | null,
+    unsubscribeToken: r.unsubscribe_token as string | null,
+    preferences: parsePreferences(r.preferences as string | null),
+    subscribedAt: Number(r.subscribed_at),
+    confirmedAt: numberOrNull(r.confirmed_at),
+    unsubscribedAt: numberOrNull(r.unsubscribed_at),
+    lastSentAt: numberOrNull(r.last_sent_at),
+    sendCount: Number(r.send_count || 0),
+    createdAt: Number(r.created_at),
+    updatedAt: Number(r.updated_at),
+  };
 }
 
 /**
@@ -104,24 +108,26 @@ export async function getSubscriberById(id: string): Promise<Subscriber | null> 
     .bind(id)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
 
-	  const r = row as Record<string, unknown>;
-	  return {
-	    id: String(r.id),
-	    email: String(r.email),
-	    confirmed: Number(r.confirmed) === 1,
-	    confirmationToken: r.confirmation_token as string | null,
-	    unsubscribeToken: r.unsubscribe_token as string | null,
-	    preferences: parsePreferences(r.preferences as string | null),
-	    subscribedAt: Number(r.subscribed_at),
-	    confirmedAt: numberOrNull(r.confirmed_at),
-	    unsubscribedAt: numberOrNull(r.unsubscribed_at),
-	    lastSentAt: numberOrNull(r.last_sent_at),
-	    sendCount: Number(r.send_count || 0),
-	    createdAt: Number(r.created_at),
-	    updatedAt: Number(r.updated_at),
-	  };
+  const r = row as Record<string, unknown>;
+  return {
+    id: String(r.id),
+    email: String(r.email),
+    confirmed: Number(r.confirmed) === 1,
+    confirmationToken: r.confirmation_token as string | null,
+    unsubscribeToken: r.unsubscribe_token as string | null,
+    preferences: parsePreferences(r.preferences as string | null),
+    subscribedAt: Number(r.subscribed_at),
+    confirmedAt: numberOrNull(r.confirmed_at),
+    unsubscribedAt: numberOrNull(r.unsubscribed_at),
+    lastSentAt: numberOrNull(r.last_sent_at),
+    sendCount: Number(r.send_count || 0),
+    createdAt: Number(r.created_at),
+    updatedAt: Number(r.updated_at),
+  };
 }
 
 /**
@@ -134,24 +140,26 @@ export async function getSubscriberByConfirmationToken(token: string): Promise<S
     .bind(token)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
 
-	  const r = row as Record<string, unknown>;
-	  return {
-	    id: String(r.id),
-	    email: String(r.email),
-	    confirmed: Number(r.confirmed) === 1,
-	    confirmationToken: r.confirmation_token as string | null,
-	    unsubscribeToken: r.unsubscribe_token as string | null,
-	    preferences: parsePreferences(r.preferences as string | null),
-	    subscribedAt: Number(r.subscribed_at),
-	    confirmedAt: numberOrNull(r.confirmed_at),
-	    unsubscribedAt: numberOrNull(r.unsubscribed_at),
-	    lastSentAt: numberOrNull(r.last_sent_at),
-	    sendCount: Number(r.send_count || 0),
-	    createdAt: Number(r.created_at),
-	    updatedAt: Number(r.updated_at),
-	  };
+  const r = row as Record<string, unknown>;
+  return {
+    id: String(r.id),
+    email: String(r.email),
+    confirmed: Number(r.confirmed) === 1,
+    confirmationToken: r.confirmation_token as string | null,
+    unsubscribeToken: r.unsubscribe_token as string | null,
+    preferences: parsePreferences(r.preferences as string | null),
+    subscribedAt: Number(r.subscribed_at),
+    confirmedAt: numberOrNull(r.confirmed_at),
+    unsubscribedAt: numberOrNull(r.unsubscribed_at),
+    lastSentAt: numberOrNull(r.last_sent_at),
+    sendCount: Number(r.send_count || 0),
+    createdAt: Number(r.created_at),
+    updatedAt: Number(r.updated_at),
+  };
 }
 
 /**
@@ -164,24 +172,26 @@ export async function getSubscriberByUnsubscribeToken(token: string): Promise<Su
     .bind(token)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
 
-	  const r = row as Record<string, unknown>;
-	  return {
-	    id: String(r.id),
-	    email: String(r.email),
-	    confirmed: Number(r.confirmed) === 1,
-	    confirmationToken: r.confirmation_token as string | null,
-	    unsubscribeToken: r.unsubscribe_token as string | null,
-	    preferences: parsePreferences(r.preferences as string | null),
-	    subscribedAt: Number(r.subscribed_at),
-	    confirmedAt: numberOrNull(r.confirmed_at),
-	    unsubscribedAt: numberOrNull(r.unsubscribed_at),
-	    lastSentAt: numberOrNull(r.last_sent_at),
-	    sendCount: Number(r.send_count || 0),
-	    createdAt: Number(r.created_at),
-	    updatedAt: Number(r.updated_at),
-	  };
+  const r = row as Record<string, unknown>;
+  return {
+    id: String(r.id),
+    email: String(r.email),
+    confirmed: Number(r.confirmed) === 1,
+    confirmationToken: r.confirmation_token as string | null,
+    unsubscribeToken: r.unsubscribe_token as string | null,
+    preferences: parsePreferences(r.preferences as string | null),
+    subscribedAt: Number(r.subscribed_at),
+    confirmedAt: numberOrNull(r.confirmed_at),
+    unsubscribedAt: numberOrNull(r.unsubscribed_at),
+    lastSentAt: numberOrNull(r.last_sent_at),
+    sendCount: Number(r.send_count || 0),
+    createdAt: Number(r.created_at),
+    updatedAt: Number(r.updated_at),
+  };
 }
 
 /**
@@ -285,7 +295,9 @@ export async function updateSubscriberPreferences(
 
   // Get current preferences
   const current = await getSubscriberById(id);
-  if (!current) {return null;}
+  if (!current) {
+    return null;
+  }
 
   const mergedPreferences = {
     ...current.preferences,
@@ -335,7 +347,9 @@ export async function resubscriber(email: string): Promise<Subscriber | null> {
     .bind(confirmationToken, now, now, email.toLowerCase())
     .run();
 
-  if ((result.meta?.changes ?? 0) === 0) {return null;}
+  if ((result.meta?.changes ?? 0) === 0) {
+    return null;
+  }
 
   return getSubscriberByEmail(email);
 }
@@ -390,21 +404,21 @@ export async function listSubscribers(
 
   const items = (rows.results ?? []) as Record<string, unknown>[];
   return {
-	    items: items.map((r) => ({
-	      id: String(r.id),
-	      email: String(r.email),
-	      confirmed: Number(r.confirmed) === 1,
-	      confirmationToken: r.confirmation_token as string | null,
-	      unsubscribeToken: r.unsubscribe_token as string | null,
-	      preferences: parsePreferences(r.preferences as string | null),
-	      subscribedAt: Number(r.subscribed_at),
-	      confirmedAt: numberOrNull(r.confirmed_at),
-	      unsubscribedAt: numberOrNull(r.unsubscribed_at),
-	      lastSentAt: numberOrNull(r.last_sent_at),
-	      sendCount: Number(r.send_count || 0),
-	      createdAt: Number(r.created_at),
-	      updatedAt: Number(r.updated_at),
-	    })),
+    items: items.map((r) => ({
+      id: String(r.id),
+      email: String(r.email),
+      confirmed: Number(r.confirmed) === 1,
+      confirmationToken: r.confirmation_token as string | null,
+      unsubscribeToken: r.unsubscribe_token as string | null,
+      preferences: parsePreferences(r.preferences as string | null),
+      subscribedAt: Number(r.subscribed_at),
+      confirmedAt: numberOrNull(r.confirmed_at),
+      unsubscribedAt: numberOrNull(r.unsubscribed_at),
+      lastSentAt: numberOrNull(r.last_sent_at),
+      sendCount: Number(r.send_count || 0),
+      createdAt: Number(r.created_at),
+      updatedAt: Number(r.updated_at),
+    })),
     total,
   };
 }
@@ -440,29 +454,31 @@ export async function getNewsletterEdition(id: string): Promise<NewsletterEditio
     .bind(id)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
 
   const r = row as Record<string, unknown>;
-	  return {
-	    id: String(r.id),
-	    title: String(r.title),
-	    subject: String(r.subject),
-	    previewText: r.preview_text as string | null,
+  return {
+    id: String(r.id),
+    title: String(r.title),
+    subject: String(r.subject),
+    previewText: r.preview_text as string | null,
     contentHtml: String(r.content_html),
     contentText: String(r.content_text),
     articleIds: r.article_ids ? JSON.parse(r.article_ids as string) : [],
     categories: r.categories ? JSON.parse(r.categories as string) : [],
     language: String(r.language || 'en') as NewsletterLanguage,
-	    recipientCount: Number(r.recipient_count || 0),
-	    sentCount: Number(r.sent_count || 0),
-	    openCount: Number(r.open_count || 0),
-	    clickCount: Number(r.click_count || 0),
-	    status: String(r.status) as NewsletterStatus,
-	    scheduledFor: numberOrNull(r.scheduled_for),
-	    sentAt: numberOrNull(r.sent_at),
-	    createdAt: Number(r.created_at),
-	    updatedAt: Number(r.updated_at),
-	  };
+    recipientCount: Number(r.recipient_count || 0),
+    sentCount: Number(r.sent_count || 0),
+    openCount: Number(r.open_count || 0),
+    clickCount: Number(r.click_count || 0),
+    status: String(r.status) as NewsletterStatus,
+    scheduledFor: numberOrNull(r.scheduled_for),
+    sentAt: numberOrNull(r.sent_at),
+    createdAt: Number(r.created_at),
+    updatedAt: Number(r.updated_at),
+  };
 }
 
 /**
@@ -604,26 +620,26 @@ export async function listNewsletterEditions(
 
   const items = (rows.results ?? []) as Record<string, unknown>[];
   return {
-	    items: items.map((r) => ({
-	      id: String(r.id),
-	      title: String(r.title),
-	      subject: String(r.subject),
+    items: items.map((r) => ({
+      id: String(r.id),
+      title: String(r.title),
+      subject: String(r.subject),
       previewText: r.preview_text as string | null,
       contentHtml: String(r.content_html),
       contentText: String(r.content_text),
       articleIds: r.article_ids ? JSON.parse(r.article_ids as string) : [],
       categories: r.categories ? JSON.parse(r.categories as string) : [],
       language: String(r.language || 'en') as NewsletterLanguage,
-	      recipientCount: Number(r.recipient_count || 0),
-	      sentCount: Number(r.sent_count || 0),
-	      openCount: Number(r.open_count || 0),
-	      clickCount: Number(r.click_count || 0),
-	      status: String(r.status) as NewsletterStatus,
-	      scheduledFor: numberOrNull(r.scheduled_for),
-	      sentAt: numberOrNull(r.sent_at),
-	      createdAt: Number(r.created_at),
-	      updatedAt: Number(r.updated_at),
-	    })),
+      recipientCount: Number(r.recipient_count || 0),
+      sentCount: Number(r.sent_count || 0),
+      openCount: Number(r.open_count || 0),
+      clickCount: Number(r.click_count || 0),
+      status: String(r.status) as NewsletterStatus,
+      scheduledFor: numberOrNull(r.scheduled_for),
+      sentAt: numberOrNull(r.sent_at),
+      createdAt: Number(r.created_at),
+      updatedAt: Number(r.updated_at),
+    })),
     total,
   };
 }
@@ -791,17 +807,17 @@ export async function getSubscriberSends(subscriberId: string): Promise<Newslett
     .all();
 
   const items = (rows.results ?? []) as Record<string, unknown>[];
-	  return items.map((r) => ({
-	    id: String(r.id),
-	    editionId: String(r.edition_id),
-	    subscriberId: String(r.subscriber_id),
-	    status: String(r.status) as 'pending' | 'sent' | 'failed' | 'bounced',
-	    sentAt: numberOrNull(r.sent_at),
-	    openedAt: numberOrNull(r.opened_at),
-	    clickCount: Number(r.click_count || 0),
-	    errorMessage: r.error_message as string | null,
-	    createdAt: Number(r.created_at),
-	  }));
+  return items.map((r) => ({
+    id: String(r.id),
+    editionId: String(r.edition_id),
+    subscriberId: String(r.subscriber_id),
+    status: String(r.status) as 'pending' | 'sent' | 'failed' | 'bounced',
+    sentAt: numberOrNull(r.sent_at),
+    openedAt: numberOrNull(r.opened_at),
+    clickCount: Number(r.click_count || 0),
+    errorMessage: r.error_message as string | null,
+    createdAt: Number(r.created_at),
+  }));
 }
 
 // ============================================================================
@@ -890,13 +906,13 @@ export async function getPendingEmails(limit: number = 10): Promise<QueuedEmail[
     priority: Number(r.priority),
     attempts: Number(r.attempts),
     maxAttempts: Number(r.max_attempts),
-	    status: String(r.status) as 'pending' | 'processing' | 'sent' | 'failed',
-	    errorMessage: r.error_message as string | null,
-	    scheduledFor: Number(r.scheduled_for),
-	    sentAt: numberOrNull(r.sent_at),
-	    createdAt: Number(r.created_at),
-	    updatedAt: Number(r.updated_at),
-	  }));
+    status: String(r.status) as 'pending' | 'processing' | 'sent' | 'failed',
+    errorMessage: r.error_message as string | null,
+    scheduledFor: Number(r.scheduled_for),
+    sentAt: numberOrNull(r.sent_at),
+    createdAt: Number(r.created_at),
+    updatedAt: Number(r.updated_at),
+  }));
 }
 
 /**
@@ -1045,15 +1061,15 @@ export async function getSubscriberStats(subscriberId: string): Promise<Subscrib
 
   const r = row as Record<string, unknown>;
 
-	  return {
-	    subscriberId,
-	    emailsReceived: Number(r.emails_received ?? 0),
-	    emailsOpened: Number(r.emails_opened ?? 0),
-	    clicksTracked: Number(r.clicks_tracked ?? 0),
-	    lastEmailAt: numberOrNull(r.last_email_at),
-	    lastOpenAt: numberOrNull(r.last_open_at),
-	  };
-	}
+  return {
+    subscriberId,
+    emailsReceived: Number(r.emails_received ?? 0),
+    emailsOpened: Number(r.emails_opened ?? 0),
+    clicksTracked: Number(r.clicks_tracked ?? 0),
+    lastEmailAt: numberOrNull(r.last_email_at),
+    lastOpenAt: numberOrNull(r.last_open_at),
+  };
+}
 
 /**
  * Get active subscribers matching criteria (for newsletter sending)
@@ -1096,19 +1112,19 @@ export async function getActiveSubscribers(
     });
   }
 
-	return filtered.map((r) => ({
-	  id: String(r.id),
-	  email: String(r.email),
-	  confirmed: Number(r.confirmed) === 1,
-	  confirmationToken: r.confirmation_token as string | null,
-	  unsubscribeToken: r.unsubscribe_token as string | null,
-	  preferences: parsePreferences(r.preferences as string | null),
-	  subscribedAt: Number(r.subscribed_at),
-	  confirmedAt: numberOrNull(r.confirmed_at),
-	  unsubscribedAt: numberOrNull(r.unsubscribed_at),
-	  lastSentAt: numberOrNull(r.last_sent_at),
-	  sendCount: Number(r.send_count || 0),
-	  createdAt: Number(r.created_at),
-	  updatedAt: Number(r.updated_at),
-	}));
+  return filtered.map((r) => ({
+    id: String(r.id),
+    email: String(r.email),
+    confirmed: Number(r.confirmed) === 1,
+    confirmationToken: r.confirmation_token as string | null,
+    unsubscribeToken: r.unsubscribe_token as string | null,
+    preferences: parsePreferences(r.preferences as string | null),
+    subscribedAt: Number(r.subscribed_at),
+    confirmedAt: numberOrNull(r.confirmed_at),
+    unsubscribedAt: numberOrNull(r.unsubscribed_at),
+    lastSentAt: numberOrNull(r.last_sent_at),
+    sendCount: Number(r.send_count || 0),
+    createdAt: Number(r.created_at),
+    updatedAt: Number(r.updated_at),
+  }));
 }

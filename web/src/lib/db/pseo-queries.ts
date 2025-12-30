@@ -9,13 +9,13 @@ import {
   mapNewsRow,
 } from './row';
 import type {
-	Company,
-	LearningPath,
-	TopicPage,
-	ComparisonPage,
-	TopicType,
-	UserRole,
-	NewsListItem,
+  Company,
+  LearningPath,
+  TopicPage,
+  ComparisonPage,
+  TopicType,
+  UserRole,
+  NewsListItem,
 } from './types';
 
 // =============================================================================
@@ -29,7 +29,9 @@ export async function getTopicBySlug(slug: string): Promise<TopicPage | null> {
     .bind(slug)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
   return mapTopicRow(row as Record<string, unknown>);
 }
 
@@ -40,7 +42,9 @@ export async function getTopicById(id: string): Promise<TopicPage | null> {
     .bind(id)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
   return mapTopicRow(row as Record<string, unknown>);
 }
 
@@ -103,7 +107,9 @@ export async function getTopicWithNews(slug: string, limit = 20): Promise<TopicP
     .bind(slug)
     .first();
 
-  if (!topicRow) {return null;}
+  if (!topicRow) {
+    return null;
+  }
   const topic = mapTopicRow(topicRow as Record<string, unknown>);
 
   // Get related news
@@ -267,7 +273,9 @@ export async function getCompanyBySlug(slug: string): Promise<Company | null> {
     .bind(slug)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
   return mapCompanyRow(row as Record<string, unknown>);
 }
 
@@ -279,7 +287,9 @@ export async function getCompanyWithNews(slug: string, limit = 20): Promise<Comp
     .bind(slug)
     .first();
 
-  if (!companyRow) {return null;}
+  if (!companyRow) {
+    return null;
+  }
   const company = mapCompanyRow(companyRow as Record<string, unknown>);
 
   // Get related news
@@ -493,7 +503,9 @@ export async function getLearningPathBySlug(slug: string): Promise<LearningPath 
     .bind(slug)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
   return mapLearningPathRow(row as Record<string, unknown>);
 }
 
@@ -547,7 +559,9 @@ export async function getComparisonBySlug(slug: string): Promise<ComparisonPage 
     .bind(slug)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
   return mapComparisonPageRow(row as Record<string, unknown>);
 }
 

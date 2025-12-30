@@ -15,11 +15,7 @@ import {
   createSecurityConfigFromEnv,
 } from './security/headers';
 import { JwtError, authenticateRequest } from './security/jwt';
-import {
-  RateLimiter,
-  RateLimitTier,
-  createKvRateLimiter,
-} from './security/rate-limit';
+import { RateLimiter, RateLimitTier, createKvRateLimiter } from './security/rate-limit';
 import { compareSecrets } from './security/timing';
 
 /**

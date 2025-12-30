@@ -52,24 +52,28 @@ const mockedCrypto = {
       __rawKey: toBytes(keyData),
     })),
     sign: vi.fn(async (_algorithm: unknown, key: unknown, data: BufferSource) => {
-      const keyBytes = ((key as { __rawKey?: Uint8Array }).__rawKey ?? new Uint8Array()) as Uint8Array;
+      const keyBytes = ((key as { __rawKey?: Uint8Array }).__rawKey ??
+        new Uint8Array()) as Uint8Array;
       const messageBytes = toBytes(data);
       return mockHmacSha256(keyBytes, messageBytes).buffer;
     }),
-    verify: vi.fn(async (_algorithm: unknown, key: unknown, signature: BufferSource, data: BufferSource) => {
-      const keyBytes = ((key as { __rawKey?: Uint8Array }).__rawKey ?? new Uint8Array()) as Uint8Array;
-      const expected = mockHmacSha256(keyBytes, toBytes(data));
-      const actual = toBytes(signature);
-      if (actual.length !== expected.length) {
-        return false;
-      }
-      for (let i = 0; i < actual.length; i++) {
-        if (actual[i] !== expected[i]) {
+    verify: vi.fn(
+      async (_algorithm: unknown, key: unknown, signature: BufferSource, data: BufferSource) => {
+        const keyBytes = ((key as { __rawKey?: Uint8Array }).__rawKey ??
+          new Uint8Array()) as Uint8Array;
+        const expected = mockHmacSha256(keyBytes, toBytes(data));
+        const actual = toBytes(signature);
+        if (actual.length !== expected.length) {
           return false;
         }
+        for (let i = 0; i < actual.length; i++) {
+          if (actual[i] !== expected[i]) {
+            return false;
+          }
+        }
+        return true;
       }
-      return true;
-    }),
+    ),
     encrypt: vi.fn(),
     decrypt: vi.fn(),
     deriveKey: vi.fn(),
@@ -103,8 +107,9 @@ if (!('addEventListener' in globalThis)) {
     vi.fn();
 }
 if (!('removeEventListener' in globalThis)) {
-  (globalThis as unknown as { removeEventListener: (...args: unknown[]) => void }).removeEventListener =
-    vi.fn();
+  (
+    globalThis as unknown as { removeEventListener: (...args: unknown[]) => void }
+  ).removeEventListener = vi.fn();
 }
 if (!('self' in globalThis)) {
   Object.defineProperty(globalThis, 'self', {

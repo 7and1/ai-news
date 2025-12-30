@@ -144,10 +144,14 @@ export function buildCspHeader(config: CspConfig): string {
   };
 
   for (const [key, sources] of Object.entries(config)) {
-    if (key === 'reportOnly') {continue;}
+    if (key === 'reportOnly') {
+      continue;
+    }
 
     const directiveName = directiveMappings[key as keyof CspConfig];
-    if (!directiveName) {continue;}
+    if (!directiveName) {
+      continue;
+    }
 
     if (Array.isArray(sources)) {
       if (sources.length > 0) {
@@ -398,7 +402,9 @@ export function parseAllowedOrigins(envVar: string): string[] {
  * Parses CSP enabled flag from environment.
  */
 export function parseCspEnabled(envVar: string | undefined): boolean {
-  if (!envVar) {return true;}
+  if (!envVar) {
+    return true;
+  }
   return envVar.toLowerCase() !== 'false' && envVar !== '0';
 }
 

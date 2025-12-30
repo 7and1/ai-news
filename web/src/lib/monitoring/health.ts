@@ -216,10 +216,12 @@ export async function performHealthCheck(): Promise<HealthCheckResult> {
     overallStatus = 'degraded';
   }
 
-  await logger.info('Health check completed', {
-    status: overallStatus,
-    checks: Object.fromEntries(Object.entries(checks).map(([k, v]) => [k, v.status])),
-  }).catch(() => {});
+  await logger
+    .info('Health check completed', {
+      status: overallStatus,
+      checks: Object.fromEntries(Object.entries(checks).map(([k, v]) => [k, v.status])),
+    })
+    .catch(() => {});
 
   return {
     status: overallStatus,

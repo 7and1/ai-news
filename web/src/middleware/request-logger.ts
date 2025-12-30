@@ -60,10 +60,7 @@ export async function requestLoggerMiddleware(request: NextRequest): Promise<Nex
  */
 export function withRequestLogging<
   T extends (request: NextRequest, ...args: unknown[]) => Promise<NextResponse>,
->(
-  handler: T,
-  _options?: { logBody?: boolean; logQuery?: boolean }
-): T {
+>(handler: T, _options?: { logBody?: boolean; logQuery?: boolean }): T {
   return (async (request: NextRequest, ...args: unknown[]) => {
     const pathname = request.nextUrl.pathname;
     const startTime = Date.now();

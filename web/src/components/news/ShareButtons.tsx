@@ -134,7 +134,9 @@ export function ShareButtons({ url, title }: { url: string; title: string }) {
 }
 
 export function estimateReadingTime(content: string | null): string {
-  if (!content) {return '1 min read';}
+  if (!content) {
+    return '1 min read';
+  }
   const text = content.replace(/<[^>]*>/g, '');
   const words = text.trim().split(/\s+/).length;
   const minutes = Math.ceil(words / 200);

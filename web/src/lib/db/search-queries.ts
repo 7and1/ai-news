@@ -171,7 +171,9 @@ function parseAdvancedQuery(query: string, fields: SearchField[] = ['all']): Par
       .slice(0, 8)
       .map((t) => {
         // Support trailing wildcard
-        if (t.endsWith('*')) {return t;}
+        if (t.endsWith('*')) {
+          return t;
+        }
         // Add prefix matching for partial terms
         return `${t}*`;
       });
@@ -186,10 +188,18 @@ function parseAdvancedQuery(query: string, fields: SearchField[] = ['all']): Par
   if (fields.includes('all')) {
     fieldColumns.push('title', 'summary', 'content', 'tags');
   } else {
-    if (fields.includes('title')) {fieldColumns.push('title');}
-    if (fields.includes('summary')) {fieldColumns.push('summary');}
-    if (fields.includes('content')) {fieldColumns.push('content');}
-    if (fields.includes('tags')) {fieldColumns.push('tags');}
+    if (fields.includes('title')) {
+      fieldColumns.push('title');
+    }
+    if (fields.includes('summary')) {
+      fieldColumns.push('summary');
+    }
+    if (fields.includes('content')) {
+      fieldColumns.push('content');
+    }
+    if (fields.includes('tags')) {
+      fieldColumns.push('tags');
+    }
   }
 
   // For FTS5, we can use column-specific queries like: title:term OR summary:term
@@ -215,7 +225,9 @@ function parseAdvancedQuery(query: string, fields: SearchField[] = ['all']): Par
 function parseDateToTimestamp(dateStr: string): number {
   try {
     const date = new Date(dateStr);
-    if (isNaN(date.getTime())) {return 0;}
+    if (isNaN(date.getTime())) {
+      return 0;
+    }
     return date.getTime();
   } catch {
     return 0;
@@ -616,7 +628,7 @@ export async function trackSearch(params: {
   // Update popular searches asynchronously
   void db
     .prepare(
-    `
+      `
       INSERT INTO popular_searches (query, count, last_searched_at)
       VALUES (?, 1, unixepoch() * 1000)
       ON CONFLICT(query) DO UPDATE SET
@@ -736,7 +748,9 @@ export function extractHighlights(
   query: string,
   maxSnippets: number = 3
 ): string[] {
-  if (!content) {return [];}
+  if (!content) {
+    return [];
+  }
 
   const snippets: string[] = [];
   const terms = query
@@ -746,7 +760,9 @@ export function extractHighlights(
     .filter((t) => t.length >= 2)
     .slice(0, 5);
 
-  if (terms.length === 0) {return [];}
+  if (terms.length === 0) {
+    return [];
+  }
 
   // Strip HTML for snippet extraction
   const plainText = content
@@ -762,10 +778,16 @@ export function extractHighlights(
       let snippet = plainText.substring(start, end);
       const hasBefore = idx > 0;
       const hasAfter = idx + term.length < plainText.length;
-      if (hasBefore) {snippet = '...' + snippet;}
-      if (hasAfter) {snippet = snippet + '...';}
+      if (hasBefore) {
+        snippet = '...' + snippet;
+      }
+      if (hasAfter) {
+        snippet = snippet + '...';
+      }
       snippets.push(snippet);
-      if (snippets.length >= maxSnippets) {break;}
+      if (snippets.length >= maxSnippets) {
+        break;
+      }
     }
   }
 

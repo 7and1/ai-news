@@ -1,10 +1,4 @@
-import type {
-  WithContext,
-  CollectionPage,
-  Organization,
-  ItemList,
-  WebPage,
-} from 'schema-dts';
+import type { WithContext, CollectionPage, Organization, ItemList, WebPage } from 'schema-dts';
 
 import { getSiteUrl } from './d1';
 import type { TopicPage, Company, LearningPath, ComparisonPage, BreadcrumbItem } from './db/types';

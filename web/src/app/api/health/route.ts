@@ -14,41 +14,38 @@ export async function GET(request: Request) {
   try {
     switch (type) {
       case 'live':
-      case 'liveness':
-        {
-          // K8s-style liveness probe
-          const live = await livenessCheck();
-          return NextResponse.json({
-            status: 'ok',
-            timestamp: Date.now(),
-            ...live,
-          });
-        }
+      case 'liveness': {
+        // K8s-style liveness probe
+        const live = await livenessCheck();
+        return NextResponse.json({
+          status: 'ok',
+          timestamp: Date.now(),
+          ...live,
+        });
+      }
 
       case 'ready':
-      case 'readiness':
-        {
-          // K8s-style readiness probe
-          const ready = await readinessCheck();
-          const status = ready.ready ? 200 : 503;
-          return NextResponse.json(
-            {
-              status: ready.ready ? 'ready' : 'not_ready',
-              timestamp: Date.now(),
-              checks: ready.checks,
-            },
-            { status }
-          );
-        }
+      case 'readiness': {
+        // K8s-style readiness probe
+        const ready = await readinessCheck();
+        const status = ready.ready ? 200 : 503;
+        return NextResponse.json(
+          {
+            status: ready.ready ? 'ready' : 'not_ready',
+            timestamp: Date.now(),
+            checks: ready.checks,
+          },
+          { status }
+        );
+      }
 
       case 'full':
-      default:
-        {
-          // Comprehensive health check
-          const health = await performHealthCheck();
-          const httpStatus = health.status === 'unhealthy' ? 503 : 200;
-          return NextResponse.json(health, { status: httpStatus });
-        }
+      default: {
+        // Comprehensive health check
+        const health = await performHealthCheck();
+        const httpStatus = health.status === 'unhealthy' ? 503 : 200;
+        return NextResponse.json(health, { status: httpStatus });
+      }
     }
   } catch (error) {
     return NextResponse.json(

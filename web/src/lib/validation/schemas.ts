@@ -266,7 +266,7 @@ export function validateTags(tags: unknown): string[] {
   const tagSchema = z.array(z.string().min(1).max(50)).max(20);
   const cleaned = Array.isArray(tags)
     ? tags
-        .filter((t): t is string => typeof t === "string")
+        .filter((t): t is string => typeof t === 'string')
         .map((t) => t.trim())
         .filter(Boolean)
     : [];

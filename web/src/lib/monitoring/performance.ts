@@ -67,11 +67,13 @@ export async function trackQuery<T>(
 
     // Log slow queries
     if (duration > 1000) {
-      void logger.warn('Slow database query detected', {
-        query: query.substring(0, 200),
-        duration,
-        params: params?.length,
-      }).catch(() => {});
+      void logger
+        .warn('Slow database query detected', {
+          query: query.substring(0, 200),
+          duration,
+          params: params?.length,
+        })
+        .catch(() => {});
     }
 
     await trackDbQuery({
@@ -209,11 +211,13 @@ export class PerformanceTimer {
     const total = this.getElapsed();
     await recordHistogram('request_duration_ms', total, this.labels);
 
-    void logger.debug('Performance timer finished', {
-      name: this.name,
-      total,
-      measurements: this.getMeasurements(),
-    }).catch(() => {});
+    void logger
+      .debug('Performance timer finished', {
+        name: this.name,
+        total,
+        measurements: this.getMeasurements(),
+      })
+      .catch(() => {});
   }
 }
 

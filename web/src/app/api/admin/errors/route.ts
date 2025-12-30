@@ -36,8 +36,7 @@ export const GET = createMiddleware(
       const [errors, stats] = await Promise.all([
         listRecentErrors({
           limit,
-          resolved:
-            resolvedParam === 'true' ? true : resolvedParam === 'false' ? false : undefined,
+          resolved: resolvedParam === 'true' ? true : resolvedParam === 'false' ? false : undefined,
         }),
         includeStats ? getErrorStats() : null,
       ]);
@@ -69,21 +68,21 @@ export const POST = createMiddleware(
       method: 'POST',
     }).catch(() => {});
 
-  const reportSchema = z.object({
-    action: z.enum(['report', 'resolve']),
-    error: z
-      .union([
-        z.string(),
-        z.object({
-          message: z.string(),
-          name: z.string().optional(),
-          stack: z.string().optional(),
-        }),
-      ])
-      .optional(),
-    context: z.record(z.unknown()).optional(),
-    fingerprint: z.string().optional(),
-  });
+    const reportSchema = z.object({
+      action: z.enum(['report', 'resolve']),
+      error: z
+        .union([
+          z.string(),
+          z.object({
+            message: z.string(),
+            name: z.string().optional(),
+            stack: z.string().optional(),
+          }),
+        ])
+        .optional(),
+      context: z.record(z.unknown()).optional(),
+      fingerprint: z.string().optional(),
+    });
 
     const body = await request.json().catch(() => null);
     const parsed = reportSchema.safeParse(body);

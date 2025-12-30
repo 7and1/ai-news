@@ -5,11 +5,7 @@ import { notFound } from 'next/navigation';
 
 import { NewsGrid } from '@/components/news/NewsGrid';
 import { Breadcrumb } from '@/components/seo/Breadcrumb';
-import {
-  getLearningPathBySlug,
-  listLearningPaths,
-  getTopicBySlug,
-} from '@/lib/db/pseo-queries';
+import { getLearningPathBySlug, listLearningPaths, getTopicBySlug } from '@/lib/db/pseo-queries';
 import type { BreadcrumbItem, TopicPage, NewsListItem } from '@/lib/db/types';
 import {
   generateLearningPathJsonLd,
@@ -112,7 +108,9 @@ export default async function LearnPage({ params }: LearnPageProps) {
   const topics: TopicPage[] = [];
   for (const topicId of path.topics.slice(0, 10)) {
     const topic = await getTopicBySlug(topicId);
-    if (topic) {topics.push(topic);}
+    if (topic) {
+      topics.push(topic);
+    }
   }
 
   // Get related news

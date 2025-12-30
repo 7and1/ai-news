@@ -86,11 +86,13 @@ export async function reportError(err: unknown, context?: ErrorContext): Promise
   const timestamp = Date.now();
 
   // Log to console
-  await logger.error('[' + name + '] ' + message, {
-    ...context,
-    fingerprint,
-    stack,
-  }).catch(() => {});
+  await logger
+    .error('[' + name + '] ' + message, {
+      ...context,
+      fingerprint,
+      stack,
+    })
+    .catch(() => {});
 
   // Store in KV for aggregation
   try {
@@ -134,11 +136,11 @@ export async function reportError(err: unknown, context?: ErrorContext): Promise
         expirationTtl: 30 * 24 * 60 * 60,
       });
 
-	      // Also add to time-series index for querying
-	      const timeKey = 'error:index:' + new Date(timestamp).toISOString().substring(0, 10);
-	      const index = await env.ERROR_TRACKING.get(timeKey, 'json');
-	      const errorList = Array.isArray(index) ? (index as string[]) : [];
-	      errorList.push(fingerprint);
+      // Also add to time-series index for querying
+      const timeKey = 'error:index:' + new Date(timestamp).toISOString().substring(0, 10);
+      const index = await env.ERROR_TRACKING.get(timeKey, 'json');
+      const errorList = Array.isArray(index) ? (index as string[]) : [];
+      errorList.push(fingerprint);
 
       await env.ERROR_TRACKING.put(
         timeKey,
@@ -198,12 +200,14 @@ export async function getError(fingerprint: string): Promise<ErrorEntry | null> 
 /**
  * List recent errors
  */
-export async function listRecentErrors(options: {
-  limit?: number;
-  resolved?: boolean;
-  startDate?: Date;
-  endDate?: Date;
-} = {}): Promise<ErrorEntry[]> {
+export async function listRecentErrors(
+  options: {
+    limit?: number;
+    resolved?: boolean;
+    startDate?: Date;
+    endDate?: Date;
+  } = {}
+): Promise<ErrorEntry[]> {
   const { limit = 50, resolved } = options;
   const errors: ErrorEntry[] = [];
 
@@ -221,7 +225,9 @@ export async function listRecentErrors(options: {
             errors.push(entry);
           }
         }
-        if (errors.length >= limit) {break;}
+        if (errors.length >= limit) {
+          break;
+        }
       }
     }
   } catch {
@@ -262,7 +268,9 @@ export async function getErrorStats(): Promise<{
         if (data && typeof data === 'object') {
           const entry = data as ErrorEntry;
           stats.total++;
-          if (!entry.resolved) {stats.unresolved++;}
+          if (!entry.resolved) {
+            stats.unresolved++;
+          }
 
           stats.byType[entry.name] = (stats.byType[entry.name] || 0) + 1;
 
@@ -306,7 +314,9 @@ export function withErrorTracking<T extends (...args: unknown[]) => Promise<unkn
  * Global error handler for unhandled errors
  */
 export function setupGlobalErrorHandler(): void {
-  if (typeof self === 'undefined') {return;}
+  if (typeof self === 'undefined') {
+    return;
+  }
 
   // Handle unhandled promise rejections
   self.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {

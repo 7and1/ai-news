@@ -16,7 +16,10 @@ export const GET = createMiddleware<{ params: Promise<{ fingerprint: string }> }
     );
 
     if (!context?.params) {
-      return NextResponse.json({ error: 'bad_request', message: 'Missing route params' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'bad_request', message: 'Missing route params' },
+        { status: 400 }
+      );
     }
 
     const { fingerprint } = await context.params;

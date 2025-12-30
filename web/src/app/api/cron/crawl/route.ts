@@ -1,24 +1,24 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
-import { fetchDueSources } from "@/lib/crawler/api-client";
-import { loadCrawlerConfig } from "@/lib/crawler/config";
-import { batchCrawlSources } from "@/lib/crawler/crawler";
-import { getEnv } from "@/lib/d1";
-import { createMiddleware, ValidationError, withSecurityHeaders } from "@/lib/middleware";
-import { logger, reportError } from "@/lib/monitoring";
+import { fetchDueSources } from '@/lib/crawler/api-client';
+import { loadCrawlerConfig } from '@/lib/crawler/config';
+import { batchCrawlSources } from '@/lib/crawler/crawler';
+import { getEnv } from '@/lib/d1';
+import { createMiddleware, ValidationError, withSecurityHeaders } from '@/lib/middleware';
+import { logger, reportError } from '@/lib/monitoring';
 
 const bodySchema = z.object({
-  priority: z.enum(["high", "medium", "low"]).default("medium"),
+  priority: z.enum(['high', 'medium', 'low']).default('medium'),
   sourceTypes: z.array(z.string().min(1)).optional(),
   limit: z.number().int().min(1).max(500).optional(),
 });
 
 export const POST = createMiddleware(
   {
-    requireSecret: { key: "CRON_SECRET" },
-    rateLimit: "INGEST",
+    requireSecret: { key: 'CRON_SECRET' },
+    rateLimit: 'INGEST',
     securityHeaders: true,
   },
   async (request: NextRequest): Promise<NextResponse> => {
@@ -34,16 +34,16 @@ export const POST = createMiddleware(
     try {
       const env = await getEnv();
       if (!env.DB) {
-        throw new Error("Database not available");
+        throw new Error('Database not available');
       }
 
       const config = loadCrawlerConfig(env as unknown as CloudflareEnv);
       const selectedTypes =
         sourceTypes && sourceTypes.length > 0
           ? sourceTypes
-          : priority === "high"
+          : priority === 'high'
             ? config.highPriorityTypes
-            : priority === "medium"
+            : priority === 'medium'
               ? config.mediumPriorityTypes
               : config.lowPriorityTypes;
 
@@ -62,7 +62,7 @@ export const POST = createMiddleware(
         });
       }
 
-      await logger.info("Cron crawl started", {
+      await logger.info('Cron crawl started', {
         priority,
         sources: dueSources.length,
         types: selectedTypes,
@@ -84,7 +84,7 @@ export const POST = createMiddleware(
       const result = await batchCrawlSources(config, env.DB as any, sources as any);
       const durationMs = Date.now() - startedAt;
 
-      await logger.info("Cron crawl completed", {
+      await logger.info('Cron crawl completed', {
         priority,
         durationMs,
         total: result.total,
@@ -93,7 +93,7 @@ export const POST = createMiddleware(
       // Best-effort: store last run in KV for the admin crawler dashboard.
       if (env.METRICS) {
         try {
-          const existing = (await env.METRICS.get("crawler:recent_runs", "json")) as unknown;
+          const existing = (await env.METRICS.get('crawler:recent_runs', 'json')) as unknown;
           const runs = Array.isArray(existing) ? existing.slice(0, 49) : [];
           runs.unshift({
             at: startedAt,
@@ -102,8 +102,8 @@ export const POST = createMiddleware(
             sources: dueSources.length,
             total: result.total,
           });
-          await env.METRICS.put("crawler:recent_runs", JSON.stringify(runs));
-          await env.METRICS.put("crawler:last_run", String(startedAt));
+          await env.METRICS.put('crawler:recent_runs', JSON.stringify(runs));
+          await env.METRICS.put('crawler:last_run', String(startedAt));
         } catch {
           // ignore KV failures
         }
@@ -117,7 +117,7 @@ export const POST = createMiddleware(
         durationMs,
       });
     } catch (err) {
-      await reportError(err, { endpoint: "/api/cron/crawl", priority });
+      await reportError(err, { endpoint: '/api/cron/crawl', priority });
       throw err;
     }
   }
@@ -127,9 +127,9 @@ export const OPTIONS = withSecurityHeaders(async (): Promise<NextResponse> => {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Cron-Secret",
-      "Access-Control-Max-Age": "86400",
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Cron-Secret',
+      'Access-Control-Max-Age': '86400',
     },
   });
 });

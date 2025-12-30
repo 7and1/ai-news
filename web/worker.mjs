@@ -3,39 +3,39 @@
 //
 // Important: keep this file as JS/ESM so `npm run typecheck` does not depend on
 // `.open-next/worker.js` being present (it is generated during build).
-import openNextWorker from "./.open-next/worker.js";
-export { BucketCachePurge, DOQueueHandler, DOShardedTagCache } from "./.open-next/worker.js";
+import openNextWorker from './.open-next/worker.js';
+export { BucketCachePurge, DOQueueHandler, DOShardedTagCache } from './.open-next/worker.js';
 
-const CRON_CRAWL_HIGH = "5 * * * *";
-const CRON_CRAWL_MEDIUM = "10 */3 * * *";
-const CRON_CRAWL_LOW = "15 */6 * * *";
-const CRON_EMAIL_PROCESS = "1-59/5 * * * *";
+const CRON_CRAWL_HIGH = '5 * * * *';
+const CRON_CRAWL_MEDIUM = '10 */3 * * *';
+const CRON_CRAWL_LOW = '15 */6 * * *';
+const CRON_EMAIL_PROCESS = '1-59/5 * * * *';
 
 function isEnabled(value) {
   if (value === undefined || value === null) {
     return true;
   }
   const v = String(value).trim().toLowerCase();
-  return !(v === "0" || v === "false" || v === "off" || v === "no");
+  return !(v === '0' || v === 'false' || v === 'off' || v === 'no');
 }
 
 async function callInternalJson(path, body, env, ctx) {
   const url = `https://internal${path}`;
-  const headers = new Headers({ "content-type": "application/json" });
+  const headers = new Headers({ 'content-type': 'application/json' });
 
   const cronSecret = env.CRON_SECRET;
-  if (typeof cronSecret === "string" && cronSecret.length > 0) {
-    headers.set("x-cron-secret", cronSecret);
+  if (typeof cronSecret === 'string' && cronSecret.length > 0) {
+    headers.set('x-cron-secret', cronSecret);
   }
 
   const response = await openNextWorker.fetch(
-    new Request(url, { method: "POST", headers, body: JSON.stringify(body) }),
+    new Request(url, { method: 'POST', headers, body: JSON.stringify(body) }),
     env,
-    ctx,
+    ctx
   );
 
   if (!response.ok) {
-    const text = await response.text().catch(() => "");
+    const text = await response.text().catch(() => '');
     console.error(`[scheduled] internal call failed`, {
       path,
       status: response.status,
@@ -56,19 +56,19 @@ export default {
       if (event.cron !== CRON_EMAIL_PROCESS) {
         const priority =
           event.cron === CRON_CRAWL_HIGH
-            ? "high"
+            ? 'high'
             : event.cron === CRON_CRAWL_MEDIUM
-              ? "medium"
+              ? 'medium'
               : event.cron === CRON_CRAWL_LOW
-                ? "low"
-                : "medium";
-        tasks.push(callInternalJson("/api/cron/crawl", { priority }, env, ctx));
+                ? 'low'
+                : 'medium';
+        tasks.push(callInternalJson('/api/cron/crawl', { priority }, env, ctx));
       }
     }
 
     // Email queue processing (disabled unless EMAIL_WORKER_ENABLED=true)
     if (event.cron === CRON_EMAIL_PROCESS && isEnabled(env.EMAIL_WORKER_ENABLED)) {
-      tasks.push(callInternalJson("/api/cron/email/process", { limit: 25 }, env, ctx));
+      tasks.push(callInternalJson('/api/cron/email/process', { limit: 25 }, env, ctx));
     }
 
     for (const task of tasks) {
@@ -76,4 +76,3 @@ export default {
     }
   },
 };
-

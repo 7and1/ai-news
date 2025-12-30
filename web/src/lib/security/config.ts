@@ -96,7 +96,9 @@ export function resetConfig(): void {
  * Converts string environment values to numbers with defaults.
  */
 export function parseEnvNumber(value: string | undefined, defaultValue: number): number {
-  if (!value) {return defaultValue;}
+  if (!value) {
+    return defaultValue;
+  }
   const parsed = Number.parseInt(value, 10);
   return Number.isNaN(parsed) ? defaultValue : parsed;
 }

@@ -209,11 +209,11 @@ describe('timing-safe comparison', () => {
       expect(timingSafeEqual('SECRET', 'secret')).toBe(false);
     });
 
-	    it('handles whitespace correctly', () => {
-	      expect(timingSafeEqual(' secret', 'secret')).toBe(false);
-	      expect(timingSafeEqual('secret ', 'secret')).toBe(false);
-	      expect(timingSafeEqual('secret', 'secret ')).toBe(false);
-	      expect(timingSafeEqual(' secret ', 'secret ')).toBe(false);
-	    });
+    it('handles whitespace correctly', () => {
+      expect(timingSafeEqual(' secret', 'secret')).toBe(false);
+      expect(timingSafeEqual('secret ', 'secret')).toBe(false);
+      expect(timingSafeEqual('secret', 'secret ')).toBe(false);
+      expect(timingSafeEqual(' secret ', 'secret ')).toBe(false);
+    });
   });
 });

@@ -1,11 +1,11 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
-import { deleteSentEmails, getPendingEmails, updateEmailStatus } from "@/lib/db/newsletter-queries";
-import { sendEmail } from "@/lib/email/resend";
-import { createMiddleware, ValidationError, withSecurityHeaders } from "@/lib/middleware";
-import { logger, reportError } from "@/lib/monitoring";
+import { deleteSentEmails, getPendingEmails, updateEmailStatus } from '@/lib/db/newsletter-queries';
+import { sendEmail } from '@/lib/email/resend';
+import { createMiddleware, ValidationError, withSecurityHeaders } from '@/lib/middleware';
+import { logger, reportError } from '@/lib/monitoring';
 
 const bodySchema = z.object({
   limit: z.number().int().min(1).max(200).default(25),
@@ -14,8 +14,8 @@ const bodySchema = z.object({
 
 export const POST = createMiddleware(
   {
-    requireSecret: { key: "CRON_SECRET" },
-    rateLimit: "ADMIN",
+    requireSecret: { key: 'CRON_SECRET' },
+    rateLimit: 'ADMIN',
     securityHeaders: true,
   },
   async (request: NextRequest): Promise<NextResponse> => {
@@ -41,7 +41,7 @@ export const POST = createMiddleware(
         });
       }
 
-      await logger.info("Email queue processing started", { count: pending.length });
+      await logger.info('Email queue processing started', { count: pending.length });
 
       let processed = 0;
       let sent = 0;
@@ -50,7 +50,7 @@ export const POST = createMiddleware(
       for (const email of pending) {
         processed++;
 
-        const locked = await updateEmailStatus(email.id, "processing");
+        const locked = await updateEmailStatus(email.id, 'processing');
         if (!locked) {
           continue;
         }
@@ -65,17 +65,17 @@ export const POST = createMiddleware(
 
         if (result.success) {
           sent++;
-          await updateEmailStatus(email.id, "sent");
+          await updateEmailStatus(email.id, 'sent');
         } else {
           failed++;
-          await updateEmailStatus(email.id, "failed", result.error || "send_failed");
+          await updateEmailStatus(email.id, 'failed', result.error || 'send_failed');
         }
       }
 
       const cleaned = await deleteSentEmails(cleanupDays * 24 * 60 * 60 * 1000);
       const durationMs = Date.now() - startedAt;
 
-      await logger.info("Email queue processing completed", {
+      await logger.info('Email queue processing completed', {
         processed,
         sent,
         failed,
@@ -92,7 +92,7 @@ export const POST = createMiddleware(
         durationMs,
       });
     } catch (err) {
-      await reportError(err, { endpoint: "/api/cron/email/process" });
+      await reportError(err, { endpoint: '/api/cron/email/process' });
       throw err;
     }
   }
@@ -102,9 +102,9 @@ export const OPTIONS = withSecurityHeaders(async (): Promise<NextResponse> => {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Cron-Secret",
-      "Access-Control-Max-Age": "86400",
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Cron-Secret',
+      'Access-Control-Max-Age': '86400',
     },
   });
 });

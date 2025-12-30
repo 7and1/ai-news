@@ -354,7 +354,9 @@ describe('search queries', () => {
       });
 
       expect(
-        mockStmt.bind.mock.calls.flat().some((arg) => typeof arg === 'string' && arg.includes('"exact phrase"'))
+        mockStmt.bind.mock.calls
+          .flat()
+          .some((arg) => typeof arg === 'string' && arg.includes('"exact phrase"'))
       ).toBe(true);
     });
 
@@ -371,7 +373,9 @@ describe('search queries', () => {
       });
 
       expect(
-        mockStmt.bind.mock.calls.flat().some((arg) => typeof arg === 'string' && arg.includes('title:'))
+        mockStmt.bind.mock.calls
+          .flat()
+          .some((arg) => typeof arg === 'string' && arg.includes('title:'))
       ).toBe(true);
     });
 

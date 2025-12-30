@@ -13,7 +13,7 @@ async function getMetricsCache(): Promise<Map<string, Metric>> {
   try {
     const env = await getEnv();
     const metrics = env.METRICS as unknown as object | undefined;
-    if (!metrics || typeof metrics !== "object") {
+    if (!metrics || typeof metrics !== 'object') {
       return fallbackMetricsCache;
     }
     const existing = metricsCacheByNamespace.get(metrics);

@@ -8,7 +8,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { SearchInput } from './SearchInput';
 
-
 // Mock next/router
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({
@@ -510,9 +509,9 @@ describe('SearchInput', () => {
     // Wait a bit
     await new Promise((resolve) => setTimeout(resolve, 250));
 
-    expect(vi.mocked(fetch).mock.calls.some((c) => String(c[0]).includes('/api/search/suggestions'))).toBe(
-      false
-    );
+    expect(
+      vi.mocked(fetch).mock.calls.some((c) => String(c[0]).includes('/api/search/suggestions'))
+    ).toBe(false);
   });
 
   it('respects showPopular prop', () => {
@@ -521,8 +520,8 @@ describe('SearchInput', () => {
     const input = screen.getByRole('searchbox');
     fireEvent.focus(input);
 
-    expect(vi.mocked(fetch).mock.calls.some((c) => String(c[0]).includes('/api/search/analytics'))).toBe(
-      false
-    );
+    expect(
+      vi.mocked(fetch).mock.calls.some((c) => String(c[0]).includes('/api/search/analytics'))
+    ).toBe(false);
   });
 });

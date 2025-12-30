@@ -53,7 +53,9 @@ export async function getNewsById(id: string): Promise<News | null> {
     .bind(id)
     .first();
 
-  if (!row) {return null;}
+  if (!row) {
+    return null;
+  }
   return mapNewsRow(row as Record<string, unknown>);
 }
 

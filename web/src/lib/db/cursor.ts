@@ -13,7 +13,9 @@ export function decodeCursor(cursor: string): NewsCursor | null {
     const raw = Buffer.from(cursor, 'base64url').toString('utf8');
     const [publishedAtRaw, id] = raw.split(':');
     const publishedAt = Number(publishedAtRaw);
-    if (!Number.isFinite(publishedAt) || !id) {return null;}
+    if (!Number.isFinite(publishedAt) || !id) {
+      return null;
+    }
     return { publishedAt, id };
   } catch {
     return null;

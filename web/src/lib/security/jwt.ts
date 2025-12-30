@@ -250,7 +250,9 @@ export async function verifyToken(token: string, secret: string): Promise<JwtPay
  * @returns The extracted token or null if not found
  */
 export function extractTokenFromHeader(authHeader: string | null): string | null {
-  if (!authHeader) {return null;}
+  if (!authHeader) {
+    return null;
+  }
   const match = authHeader.match(/^Bearer\s+(\S+)\s*$/i);
   return match?.[1] ?? null;
 }

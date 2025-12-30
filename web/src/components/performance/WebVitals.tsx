@@ -27,8 +27,12 @@ function getRating(
   value: number
 ): 'good' | 'needs-improvement' | 'poor' {
   const thresholds = VITAL_THRESHOLDS[metricName];
-  if (value <= thresholds.good) {return 'good';}
-  if (value <= thresholds.needsImprovement) {return 'needs-improvement';}
+  if (value <= thresholds.good) {
+    return 'good';
+  }
+  if (value <= thresholds.needsImprovement) {
+    return 'needs-improvement';
+  }
   return 'poor';
 }
 
@@ -36,7 +40,9 @@ function getRating(
  * Send metrics to analytics endpoint
  */
 async function sendToAnalytics(metric: Metric, options: WebVitalsReporter): Promise<void> {
-  if (!options.report) {return;}
+  if (!options.report) {
+    return;
+  }
 
   const rating = getRating(metric.name as keyof typeof VITAL_THRESHOLDS, metric.value);
 

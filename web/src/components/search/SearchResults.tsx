@@ -53,7 +53,9 @@ export function SearchResults({
   }, [q, items.length]); // Only track on mount
 
   const handleLoadMore = async () => {
-    if (!nextCursor || isLoadingMore) {return;}
+    if (!nextCursor || isLoadingMore) {
+      return;
+    }
 
     setIsLoadingMore(true);
     try {
@@ -99,7 +101,9 @@ export function SearchResults({
     .slice(0, 8);
 
   const highlightTerm = (text: string, term: string) => {
-    if (!term) {return text;}
+    if (!term) {
+      return text;
+    }
     const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     return text.replace(
       regex,

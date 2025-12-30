@@ -64,7 +64,9 @@ export function SubscribeForm({ className = '', onSuccess }: SubscribeFormProps)
             ? "You're already subscribed!"
             : 'Please check your email to confirm your subscription.'
         );
-        if (onSuccess) {onSuccess();}
+        if (onSuccess) {
+          onSuccess();
+        }
       } else {
         setFormState('error');
         setMessage(data.error || 'Subscription failed. Please try again.');

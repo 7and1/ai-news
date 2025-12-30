@@ -380,16 +380,16 @@ describe('SubscribeForm', () => {
     expect(screen.queryByLabelText(/email address/i)).not.toBeInTheDocument();
   });
 
-	  it('handles all frequency options', () => {
-	    render(<SubscribeForm />);
+  it('handles all frequency options', () => {
+    render(<SubscribeForm />);
 
-	    const frequencySelect = screen.getByLabelText(/frequency/i);
-	    expect(frequencySelect).toBeInTheDocument();
+    const frequencySelect = screen.getByLabelText(/frequency/i);
+    expect(frequencySelect).toBeInTheDocument();
 
-	    const options = [
-	      { value: 'weekly', label: 'Weekly' },
-	      { value: 'biweekly', label: 'Bi-weekly' },
-	      { value: 'daily', label: 'Daily' },
+    const options = [
+      { value: 'weekly', label: 'Weekly' },
+      { value: 'biweekly', label: 'Bi-weekly' },
+      { value: 'daily', label: 'Daily' },
     ];
 
     options.forEach((option) => {
@@ -397,15 +397,15 @@ describe('SubscribeForm', () => {
     });
   });
 
-	  it('handles both language options', () => {
-	    render(<SubscribeForm />);
+  it('handles both language options', () => {
+    render(<SubscribeForm />);
 
-	    const languageSelect = screen.getByLabelText(/language/i);
-	    expect(languageSelect).toBeInTheDocument();
+    const languageSelect = screen.getByLabelText(/language/i);
+    expect(languageSelect).toBeInTheDocument();
 
-	    expect(screen.getByText('English')).toBeInTheDocument();
-	    expect(screen.getByText('Chinese')).toBeInTheDocument();
-	  });
+    expect(screen.getByText('English')).toBeInTheDocument();
+    expect(screen.getByText('Chinese')).toBeInTheDocument();
+  });
 
   it('shows privacy notice', () => {
     render(<SubscribeForm />);

@@ -1,10 +1,15 @@
 import { revalidatePath } from 'next/cache';
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { toSafeHtml, type ContentFormat } from '@/lib/content';
 import { getDb } from '@/lib/d1';
-import { linkNewsToCompany, linkNewsToTopic, upsertCompany, upsertTopic } from '@/lib/db/pseo-queries';
+import {
+  linkNewsToCompany,
+  linkNewsToTopic,
+  upsertCompany,
+  upsertTopic,
+} from '@/lib/db/pseo-queries';
 import { upsertNews } from '@/lib/db/queries';
 import { entitySlugToName, extractEntities } from '@/lib/entities';
 import { idFromUrl } from '@/lib/id';
@@ -20,7 +25,10 @@ import {
 import { ingestBodySchema } from '@/lib/validation/schemas';
 
 function stripHtmlToText(html: string): string {
-  return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
@@ -40,7 +48,9 @@ async function ensureSource(input: {
     .bind(input.sourceId)
     .first();
 
-  if (existing) {return;}
+  if (existing) {
+    return;
+  }
 
   if (!input.sourceName || !input.sourceUrl || !input.sourceType) {
     throw new Error(

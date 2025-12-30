@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 import { getEnv } from '@/lib/d1';
 import { compareSecrets } from '@/lib/security/timing';
 
-
 interface WebVitalsPayload {
   name: string;
   value: number;

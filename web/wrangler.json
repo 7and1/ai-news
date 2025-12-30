@@ -9,8 +9,8 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "SITE_URL": "http://localhost:3000",
-    "NEXT_PUBLIC_SITE_URL": "http://localhost:3000",
+    "SITE_URL": "https://ai-news.7and1.workers.dev",
+    "NEXT_PUBLIC_SITE_URL": "https://ai-news.7and1.workers.dev",
     "NEXT_PUBLIC_SITE_NAME": "AI News",
     "RATE_LIMIT_ENABLED": "true",
     "RATE_LIMIT_PUBLIC_REQUESTS": "60",
@@ -23,7 +23,7 @@
     "RATE_LIMIT_ADMIN_WINDOW": "60",
     "RATE_LIMIT_ITEM_REQUESTS": "100",
     "RATE_LIMIT_ITEM_WINDOW": "60",
-    "ALLOWED_ORIGINS": "http://localhost:3000,https://bestblogs.dev,https://staging.bestblogs.dev",
+    "ALLOWED_ORIGINS": "https://ai-news.7and1.workers.dev,https://bestblogs.dev,http://localhost:3000",
     "CSP_ENABLED": "true",
     "JWT_ISSUER": "bestblogs.dev",
     "CRAWLER_ENABLED": "false",
@@ -53,7 +53,7 @@
     {
       "binding": "DB",
       "database_name": "ai_news_db",
-      "database_id": "WRANGLER_DATABASE_ID"
+      "database_id": "64d45dac-659e-4731-b615-9af53c9018d7"
     }
   ],
   "r2_buckets": [
@@ -72,33 +72,27 @@
   "kv_namespaces": [
     {
       "binding": "RATE_LIMIT_KV",
-      "id": "WRANGLER_RATE_LIMIT_KV_ID",
-      "preview_id": "WRANGLER_RATE_LIMIT_KV_PREVIEW_ID"
+      "id": "7081d6d5f85b45f0aa2f92e348acf019"
     },
     {
       "binding": "LOGS",
-      "id": "WRANGLER_LOGS_KV_ID",
-      "preview_id": "WRANGLER_LOGS_KV_PREVIEW_ID"
+      "id": "dd732419ab7b4c369affe716fb262622"
     },
     {
       "binding": "METRICS",
-      "id": "WRANGLER_METRICS_KV_ID",
-      "preview_id": "WRANGLER_METRICS_KV_PREVIEW_ID"
+      "id": "268985503c68406c90a91257ab4a48dc"
     },
     {
       "binding": "ERROR_TRACKING",
-      "id": "WRANGLER_ERROR_TRACKING_KV_ID",
-      "preview_id": "WRANGLER_ERROR_TRACKING_KV_PREVIEW_ID"
+      "id": "d0ee572e6cb549488f9883cb0f8445ab"
     },
     {
       "binding": "WEB_VITALS_KV",
-      "id": "WRANGLER_WEB_VITALS_KV_ID",
-      "preview_id": "WRANGLER_WEB_VITALS_KV_PREVIEW_ID"
+      "id": "0fc8ff7a250447069aa5b1e23c6ed7d0"
     },
     {
       "binding": "QUERY_CACHE",
-      "id": "WRANGLER_QUERY_CACHE_KV_ID",
-      "preview_id": "WRANGLER_QUERY_CACHE_KV_PREVIEW_ID"
+      "id": "2fff06f6303e4eeb843ffcefcdbf3a5c"
     }
   ],
   "triggers": {

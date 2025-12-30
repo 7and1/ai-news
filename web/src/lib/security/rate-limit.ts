@@ -92,7 +92,9 @@ class InMemoryRateLimitStore implements RateLimitStore {
 
   async get(key: string): Promise<number | null> {
     const entry = this.data.get(key);
-    if (!entry) {return null;}
+    if (!entry) {
+      return null;
+    }
 
     if (Date.now() > entry.expires) {
       this.data.delete(key);

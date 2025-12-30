@@ -339,25 +339,33 @@ export function extractEntities(text: string, existing: NewsEntities | null = nu
   let match;
   const modelRegex = new RegExp(MODEL_PATTERN);
   while ((match = modelRegex.exec(text)) !== null) {
-    if (match[1]) {models.add(normalizeEntity(match[1]));}
+    if (match[1]) {
+      models.add(normalizeEntity(match[1]));
+    }
   }
 
   // Extract companies
   const companyRegex = new RegExp(COMPANY_PATTERN);
   while ((match = companyRegex.exec(text)) !== null) {
-    if (match[1]) {companies.add(normalizeEntity(match[1]));}
+    if (match[1]) {
+      companies.add(normalizeEntity(match[1]));
+    }
   }
 
   // Extract technologies
   const techRegex = new RegExp(TECH_PATTERN);
   while ((match = techRegex.exec(text)) !== null) {
-    if (match[1]) {technologies.add(normalizeEntity(match[1]));}
+    if (match[1]) {
+      technologies.add(normalizeEntity(match[1]));
+    }
   }
 
   // Extract concepts
   const conceptRegex = new RegExp(CONCEPT_PATTERN);
   while ((match = conceptRegex.exec(text)) !== null) {
-    if (match[1]) {concepts.add(normalizeEntity(match[1]));}
+    if (match[1]) {
+      concepts.add(normalizeEntity(match[1]));
+    }
   }
 
   return {
@@ -401,7 +409,9 @@ export function entityToSlug(name: string): string {
  * Link entities in HTML content
  */
 export function linkEntitiesInContent(html: string, entities: NewsEntities | null): string {
-  if (!html || !entities) {return html;}
+  if (!html || !entities) {
+    return html;
+  }
 
   let result = html;
   const allEntities = [

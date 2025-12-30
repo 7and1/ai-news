@@ -14,13 +14,10 @@ export default async function ConfirmPage({ params }: PageProps) {
   const siteUrl = await getSiteUrl();
 
   // Confirm subscription via API
-  const response = await fetch(
-    `${siteUrl}/api/newsletter/confirm/${token}`,
-    {
-      method: 'POST',
-      cache: 'no-store',
-    }
-  );
+  const response = await fetch(`${siteUrl}/api/newsletter/confirm/${token}`, {
+    method: 'POST',
+    cache: 'no-store',
+  });
 
   const data = await response.json();
 

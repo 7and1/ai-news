@@ -44,14 +44,11 @@ function UnsubscribeContent({ token }: { token: string }) {
           action={async () => {
             'use server';
             const siteUrl = await getSiteUrl();
-            const response = await fetch(
-              `${siteUrl}/api/newsletter/unsubscribe`,
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token }),
-              }
-            );
+            const response = await fetch(`${siteUrl}/api/newsletter/unsubscribe`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token }),
+            });
 
             const data = await response.json();
 

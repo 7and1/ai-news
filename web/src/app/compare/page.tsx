@@ -101,7 +101,9 @@ export default async function ComparePage() {
             <div className="flex flex-wrap gap-2">
               {popularModels.slice(0, 4).map((model, i) => {
                 const nextModel = popularModels[i + 1];
-                if (!nextModel) {return null;}
+                if (!nextModel) {
+                  return null;
+                }
                 const slug = `${model.slug}-vs-${nextModel.slug}`;
                 return (
                   <Link
@@ -159,7 +161,9 @@ export default async function ComparePage() {
             <div className="flex flex-wrap gap-2">
               {popularCompanies.slice(0, 4).map((company, i) => {
                 const nextCompany = popularCompanies[i + 1];
-                if (!nextCompany) {return null;}
+                if (!nextCompany) {
+                  return null;
+                }
                 const slug = `${company.slug}-vs-${nextCompany.slug}`;
                 return (
                   <Link

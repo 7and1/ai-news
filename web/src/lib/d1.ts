@@ -20,8 +20,12 @@ export async function getDb() {
 export async function getSiteUrl(): Promise<string> {
   const env = await getEnv();
   const fromBinding = env.SITE_URL?.trim();
-  if (fromBinding) {return fromBinding;}
+  if (fromBinding) {
+    return fromBinding;
+  }
   const fromPublic = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (fromPublic) {return fromPublic;}
+  if (fromPublic) {
+    return fromPublic;
+  }
   return 'http://localhost:3000';
 }

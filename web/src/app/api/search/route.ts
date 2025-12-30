@@ -3,11 +3,7 @@ import { NextResponse } from 'next/server';
 
 import { advancedSearch, trackSearch, type AdvancedSearchParams } from '@/lib/db/search-queries';
 import { createMiddleware, withSecurityHeaders, ValidationError } from '@/lib/middleware';
-import {
-  incrementCounter,
-  generateCorrelationId,
-  setCorrelationId,
-} from '@/lib/monitoring';
+import { incrementCounter, generateCorrelationId, setCorrelationId } from '@/lib/monitoring';
 import { searchQuerySchema, z } from '@/lib/validation/schemas';
 
 /**

@@ -40,16 +40,16 @@ export const GET = createMiddleware(
         });
       }
 
-    // JSON format - get comprehensive metrics
-    const [metrics, errorStats] = await Promise.all([getAllMetrics(), getErrorStats()]);
+      // JSON format - get comprehensive metrics
+      const [metrics, errorStats] = await Promise.all([getAllMetrics(), getErrorStats()]);
 
-    // Calculate summary statistics
-    const summary = {
-      totalRequests: sumCounters(metrics.counters, 'http_requests_total'),
-      totalErrors: sumCounters(metrics.counters, 'http_errors_total'),
-      avgResponseTime: calculateAvgResponseTime(metrics.histograms),
-      errorRate: 0,
-    };
+      // Calculate summary statistics
+      const summary = {
+        totalRequests: sumCounters(metrics.counters, 'http_requests_total'),
+        totalErrors: sumCounters(metrics.counters, 'http_errors_total'),
+        avgResponseTime: calculateAvgResponseTime(metrics.histograms),
+        errorRate: 0,
+      };
 
       if (summary.totalRequests > 0) {
         summary.errorRate = summary.totalErrors / summary.totalRequests;
@@ -154,12 +154,12 @@ export const POST = createMiddleware(
       method: 'POST',
     }).catch(() => {});
 
-  const schema = z.object({
-    type: z.enum(['counter', 'gauge', 'histogram']),
-    name: z.string().min(1),
-    value: z.number(),
-    labels: z.record(z.string()).optional(),
-  });
+    const schema = z.object({
+      type: z.enum(['counter', 'gauge', 'histogram']),
+      name: z.string().min(1),
+      value: z.number(),
+      labels: z.record(z.string()).optional(),
+    });
 
     const body = await request.json().catch(() => null);
     const parsed = schema.safeParse(body);

@@ -2,11 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import {
-  createSubscriber,
-  getSubscriberByEmail,
-  queueEmail,
-} from '@/lib/db/newsletter-queries';
+import { createSubscriber, getSubscriberByEmail, queueEmail } from '@/lib/db/newsletter-queries';
 import type { NewsletterCategory, Frequency, NewsletterLanguage } from '@/lib/db/newsletter-types';
 import { isValidEmail, sanitizeEmail } from '@/lib/email/resend';
 import { generateConfirmationEmail } from '@/lib/email/templates';
@@ -21,7 +17,6 @@ const subscribeSchema = z.object({
     })
     .optional(),
 });
-
 
 /**
  * POST /api/newsletter/subscribe

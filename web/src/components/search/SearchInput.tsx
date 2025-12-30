@@ -143,7 +143,9 @@ export function SearchInput({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) {return;}
+    if (!query.trim()) {
+      return;
+    }
 
     // Save to recent searches
     const newRecent = [query.trim(), ...recentSearches.filter((s) => s !== query.trim())].slice(
@@ -170,7 +172,9 @@ export function SearchInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showSuggestions || suggestions.length === 0) {return;}
+    if (!showSuggestions || suggestions.length === 0) {
+      return;
+    }
 
     switch (e.key) {
       case 'ArrowDown':

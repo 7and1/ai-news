@@ -25,7 +25,9 @@ export const dynamic = 'force-dynamic'; // Use SSR since D1 bindings not availab
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const news = await getNewsById(id);
-  if (!news) {return {};}
+  if (!news) {
+    return {};
+  }
   return generateNewsMetadata(news);
 }
 
@@ -37,7 +39,9 @@ export default async function NewsPage({ params }: { params: Promise<{ id: strin
     getSiteUrl(),
   ]);
 
-  if (!news) {notFound();}
+  if (!news) {
+    notFound();
+  }
 
   const jsonLd = await generateNewsArticleJsonLd(news);
 

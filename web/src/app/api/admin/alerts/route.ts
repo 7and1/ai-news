@@ -23,7 +23,9 @@ import {
 export const GET = createMiddleware(
   { requireSecret: { key: 'INGEST_SECRET' }, rateLimit: 'ADMIN', securityHeaders: true },
   async (request: NextRequest) => {
-    void incrementCounter('admin_metrics_requests_total', 1, { endpoint: 'alerts' }).catch(() => {});
+    void incrementCounter('admin_metrics_requests_total', 1, { endpoint: 'alerts' }).catch(
+      () => {}
+    );
 
     const { searchParams } = new URL(request.url);
     const includeEvents = searchParams.get('events') === 'true';

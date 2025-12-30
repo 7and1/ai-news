@@ -12,7 +12,6 @@ const testEmailSchema = z.object({
   content: z.string(),
 });
 
-
 /**
  * POST /api/admin/newsletter/test
  *
