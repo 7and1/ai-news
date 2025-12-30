@@ -1,0 +1,87 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ai-news-staging",
+  "main": "worker.mjs",
+  "compatibility_date": "2025-12-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "SITE_URL": "https://staging.bestblogs.dev",
+    "NEXT_PUBLIC_SITE_URL": "https://staging.bestblogs.dev",
+    "NEXT_PUBLIC_SITE_NAME": "AI News (Staging)",
+    "RATE_LIMIT_ENABLED": "true",
+    "RATE_LIMIT_PUBLIC_REQUESTS": "120",
+    "RATE_LIMIT_PUBLIC_WINDOW": "60",
+    "RATE_LIMIT_SEARCH_REQUESTS": "40",
+    "RATE_LIMIT_SEARCH_WINDOW": "60",
+    "RATE_LIMIT_INGEST_REQUESTS": "30",
+    "RATE_LIMIT_INGEST_WINDOW": "60",
+    "RATE_LIMIT_ADMIN_REQUESTS": "60",
+    "RATE_LIMIT_ADMIN_WINDOW": "60",
+    "RATE_LIMIT_ITEM_REQUESTS": "200",
+    "RATE_LIMIT_ITEM_WINDOW": "60",
+    "ALLOWED_ORIGINS": "https://staging.bestblogs.dev,http://localhost:3000",
+    "CSP_ENABLED": "true",
+    "JWT_ISSUER": "bestblogs.dev-staging",
+    "ENVIRONMENT": "staging",
+    "CRAWLER_ENABLED": "false",
+    "EMAIL_WORKER_ENABLED": "false"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "ai-news-staging"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ai_news_db_staging",
+      "database_id": "PLACEHOLDER_STAGING_D1_ID"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "ai-news-cache-staging"
+    },
+    {
+      "binding": "R2",
+      "bucket_name": "ai-news-images-staging"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT_KV",
+      "id": "PLACEHOLDER_STAGING_RATE_LIMIT_KV",
+      "preview_id": "PLACEHOLDER_STAGING_RATE_LIMIT_KV_PREVIEW"
+    },
+    {
+      "binding": "LOGS",
+      "id": "PLACEHOLDER_STAGING_LOGS_KV",
+      "preview_id": "PLACEHOLDER_STAGING_LOGS_KV_PREVIEW"
+    },
+    {
+      "binding": "METRICS",
+      "id": "PLACEHOLDER_STAGING_METRICS_KV",
+      "preview_id": "PLACEHOLDER_STAGING_METRICS_KV_PREVIEW"
+    },
+    {
+      "binding": "ERROR_TRACKING",
+      "id": "PLACEHOLDER_STAGING_ERROR_KV",
+      "preview_id": "PLACEHOLDER_STAGING_ERROR_KV_PREVIEW"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "staging.bestblogs.dev/*",
+      "zone_name": "bestblogs.dev"
+    }
+  ]
+}

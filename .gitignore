@@ -16,9 +16,7 @@
 .env.*
 !.env.example
 
-# wrangler config (contains sensitive IDs)
-web/wrangler.json
-web/wrangler.staging.json
-web/wrangler.toml
-!web/wrangler.json.example
+# wrangler secrets (local dev files)
+web/.wrangler/
+web/.dev.vars
 
